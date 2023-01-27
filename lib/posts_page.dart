@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:url_launcher/url_launcher.dart';
 import 'dart:convert';
-
-// void main() => runApp(PostsPage());
 
 class PostsPage extends StatefulWidget {
   const PostsPage({super.key});
@@ -12,26 +11,24 @@ class PostsPage extends StatefulWidget {
 }
 
 class _PostsPageState extends State<PostsPage> {
-  // Declare a list to store the posts
   List<dynamic> _posts = [];
-
-  // Function to fetch the posts from the API
   Future<void> _fetchPosts() async {
-    // Make the HTTP request
     http.Response response =
         await http.get(Uri.parse("https://biasb.in/wp-json/wp/v2/posts"));
 
-    // Check the status code of the response (200 indicates a successful request)
     if (response.statusCode == 200) {
-      // Parse the response body as a list of posts
       List<dynamic> posts = jsonDecode(response.body);
-
-      // Set the posts in the state
+      for (var i = 0; i < posts.length; i++) {
+        http.Response authorResponse = await http.get(Uri.parse(
+            "https://biasb.in/wp-json/wp/v2/users/${posts[i]['author']}"));
+        if (authorResponse.statusCode == 200) {
+          posts[i]['author_name'] = jsonDecode(authorResponse.body)['name'];
+        }
+      }
       setState(() {
         _posts = posts;
       });
     } else {
-      // If the request failed, display an error message
       print('Failed to load posts');
     }
   }
@@ -40,7 +37,6 @@ class _PostsPageState extends State<PostsPage> {
   void initState() {
     super.initState();
 
-    // Fetch the posts when the app starts
     _fetchPosts();
   }
 
@@ -54,9 +50,13 @@ class _PostsPageState extends State<PostsPage> {
         body: ListView.builder(
           itemCount: _posts.length,
           itemBuilder: (context, index) {
-            return ListTile(
-              title: Text(_posts[index]['title']['rendered']),
-              // leading: Image.network(_posts[index]['featured_image_src']),
+            return InkWell(
+              onTap: () => launch(_posts[index]['link']),
+              child: ListTile(
+                title: Text(_posts[index]['title']['rendered']),
+                // ignore: prefer_interpolation_to_compose_strings
+                subtitle: Text("Author: " + _posts[index]['author_name']),
+              ),
             );
           },
         ),
