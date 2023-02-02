@@ -4,6 +4,7 @@ import 'package:testing/profile_page.dart';
 import 'package:testing/posts_page.dart';
 import 'package:testing/movie_page.dart';
 import 'package:testing/media_page.dart';
+import 'package:testing/coupon_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -31,12 +32,13 @@ class RootPage extends StatefulWidget {
 
 class _RootPageState extends State<RootPage> {
   int currentPage = 0;
-  List<Widget> pages = const [
+  List<Widget> pages = [
     HomePage(),
     ProfilePage(),
     PostsPage(),
     MoviePage(),
     MediaPage(),
+    CouponTemplate(),
   ];
   @override
   Widget build(BuildContext context) {
@@ -58,6 +60,7 @@ class _RootPageState extends State<RootPage> {
           NavigationDestination(icon: Icon(Icons.post_add), label: "Posts"),
           NavigationDestination(icon: Icon(Icons.movie), label: "Movies"),
           NavigationDestination(icon: Icon(Icons.image), label: "Images"),
+          NavigationDestination(icon: Icon(Icons.discount), label: "Coupons"),
         ],
         onDestinationSelected: (int index) {
           setState(() {

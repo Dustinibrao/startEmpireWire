@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 import 'dart:convert';
 
 class PostsPage extends StatefulWidget {
@@ -51,10 +51,19 @@ class _PostsPageState extends State<PostsPage> {
           itemCount: _posts.length,
           itemBuilder: (context, index) {
             return InkWell(
-              onTap: () => launch(_posts[index]['link']),
+              onTap: () {
+                // Open the link in a webview within the app
+                Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => WebviewScaffold(
+                    url: _posts[index]['link'],
+                    appBar: AppBar(
+                      title: Text(_posts[index]['title']['rendered']),
+                    ),
+                  ),
+                ));
+              },
               child: ListTile(
                 title: Text(_posts[index]['title']['rendered']),
-                // ignore: prefer_interpolation_to_compose_strings
                 subtitle: Text("Author: " + _posts[index]['author_name']),
               ),
             );
