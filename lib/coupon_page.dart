@@ -42,6 +42,18 @@ class _CouponTemplateState extends State<CouponTemplate> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            if (Navigator.of(context).canPop()) {
+              Navigator.of(context).pop();
+            }
+          },
+        ),
+        title: const Text("Coupons"),
+        centerTitle: true,
+      ),
       body: GridView.count(
         crossAxisCount: 2,
         children: List.generate(coupons.length, (index) {
