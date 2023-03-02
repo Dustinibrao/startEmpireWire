@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:testing/new_home_page.dart';
 import 'package:testing/listen_page.dart';
 import 'package:testing/coupon_page.dart';
@@ -92,54 +93,116 @@ class _RootPageState extends State<RootPage> {
             )
           : null,
       drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            Container(
-              height: 88,
-              child: DrawerHeader(
-                decoration: const BoxDecoration(
-                  color: Colors.black,
-                ),
-                child: Stack(
-                  children: [
-                    const Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        'Menu',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 24,
-                        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: ListView(
+                padding: EdgeInsets.zero,
+                children: <Widget>[
+                  Container(
+                    height: 88,
+                    child: DrawerHeader(
+                      decoration: const BoxDecoration(
+                        color: Colors.black,
+                      ),
+                      child: Stack(
+                        children: [
+                          const Align(
+                            alignment: Alignment.centerLeft,
+                            child: Icon(
+                              Icons.rocket_launch_sharp,
+                              color: Colors.white,
+                              size: 24,
+                            ),
+                          ),
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: IconButton(
+                              icon: const Icon(Icons.close),
+                              color: Colors.white,
+                              onPressed: () => Navigator.pop(context),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: IconButton(
-                        icon: const Icon(Icons.close),
-                        color: Colors.white,
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                  ListTile(
+                    title: const Text('Login'),
+                    onTap: () {
+                      // Update the UI based on the item selected
+                      // then close the drawer
+                      Navigator.pop(context);
+                    },
+                  ),
+                  ListTile(
+                    title: const Text('News'),
+                    onTap: () {
+                      // Update the UI based on the item selected
+                      // then close the drawer
+                      Navigator.pop(context);
+                    },
+                  ),
+                  ListTile(
+                    title: const Text('Shows'),
+                    onTap: () {
+                      // Update the UI based on the item selected
+                      // then close the drawer
+                      Navigator.pop(context);
+                    },
+                  ),
+                ],
               ),
             ),
-            ListTile(
-              title: const Text('Item 1'),
-              onTap: () {
-                // Update the UI based on the item selected
-                // then close the drawer
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              title: const Text('Item 2'),
-              onTap: () {
-                // Update the UI based on the item selected
-                // then close the drawer
-                Navigator.pop(context);
-              },
+            Container(
+              color: Colors.black,
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      IconButton(
+                        icon: const Icon(
+                          FontAwesomeIcons.facebookF,
+                        ),
+                        color: Colors.white,
+                        onPressed: () => {},
+                      ),
+                      IconButton(
+                        icon: const Icon(
+                          FontAwesomeIcons.twitter,
+                        ),
+                        color: Colors.white,
+                        onPressed: () => {
+                          
+                        },
+                      ),
+                      IconButton(
+                        icon: const Icon(
+                          FontAwesomeIcons.instagram,
+                        ),
+                        color: Colors.white,
+                        onPressed: () => {},
+                      ),
+                    ],
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: const [
+                        Text(
+                          '© 2023 Startempire Wire',
+                          style: TextStyle(
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         ),

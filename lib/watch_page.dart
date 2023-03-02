@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 class WatchPage extends StatefulWidget {
-  const WatchPage({super.key});
+  const WatchPage({Key? key}) : super(key: key);
 
   @override
   _WatchPageState createState() => _WatchPageState();
@@ -13,17 +13,46 @@ class _WatchPageState extends State<WatchPage> {
   // Variable to store the list of podcasts
   List<Podcast> podcasts = [];
 
+  // Flag to determine if the API call is in progress
+  bool isLoading = true;
+
+  // Flag to determine if an error occurred during the API call
+  bool hasError = false;
+
   // Function to fetch the podcasts from the API
   Future<void> fetchPodcasts() async {
-    final response = await http
-        .get(Uri.parse("https://startempirewire.com/wp-json/wp/v2/podcast"));
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body) as List;
+    try {
+      final response = await http.get(
+        Uri.parse("https://startempirewire.com/wp-json/wp/v2/podcast"),
+      );
+
+      print('Response status code: ${response.statusCode}');
+      print('Response message: ${response.reasonPhrase}');
+      print('Response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body) as List<dynamic>;
+
+        setState(() {
+          podcasts = data
+              .map((podcast) =>
+                  Podcast.fromJson(podcast as Map<String, dynamic>))
+              .toList();
+          isLoading = false;
+        });
+      } else {
+        print('Error fetching podcasts: ${response.statusCode}');
+        setState(() {
+          isLoading = false;
+          hasError = true;
+        });
+      }
+    } catch (e) {
+      print('Error fetching podcasts: $e');
       setState(() {
-        podcasts = data.map((podcast) => Podcast.fromJson(podcast)).toList();
+        isLoading = false;
+        hasError = true;
       });
-    } else {
-      throw Exception("Failed to load podcasts");
     }
   }
 
@@ -46,19 +75,28 @@ class _WatchPageState extends State<WatchPage> {
         title: const Text("Watch"),
         centerTitle: true,
       ),
-      body: ListView.builder(
-        itemCount: podcasts.length,
-        itemBuilder: (context, index) {
-          final podcast = podcasts[index];
-          return ListTile(
-            title: Text(podcast.title),
-            subtitle: Text(podcast.description),
-            onTap: () {
-              // Navigate to the podcast video player
-            },
-          );
-        },
-      ),
+      body: isLoading
+          ? const Center(
+              child: CircularProgressIndicator(),
+            )
+          : hasError
+              ? const Center(
+                  child: Text("Failed to load podcasts"),
+                )
+              : ListView.separated(
+                  itemCount: podcasts.length,
+                  separatorBuilder: (context, index) => const Divider(),
+                  itemBuilder: (context, index) {
+                    final podcast = podcasts[index];
+                    return ListTile(
+                      title: Text(podcast.title),
+                      // subtitle: Text(podcast.description ?? ""),
+                      onTap: () {
+                        // Navigate to the podcast video player
+                      },
+                    );
+                  },
+                ),
     );
   }
 }
@@ -67,21 +105,22 @@ class _WatchPageState extends State<WatchPage> {
 class Podcast {
   final int id;
   final String title;
-  final String description;
-  final String videoUrl;
+  final String link;
+  final String imageUrl;
 
-  Podcast(
-      {required this.id,
-      required this.title,
-      required this.description,
-      required this.videoUrl});
+  Podcast({
+    required this.id,
+    required this.title,
+    required this.link,
+    required this.imageUrl,
+  });
 
   factory Podcast.fromJson(Map<String, dynamic> json) {
     return Podcast(
-      id: json["id"],
-      title: json["title"],
-      description: json["description"],
-      videoUrl: json["video_url"],
+      id: int.parse(json['id'].toString()),
+      title: json['title']['rendered'] ?? 'No title available',
+      link: json['link'] ?? '',
+      imageUrl: json['featured_image_url'] ?? '',
     );
   }
 }
