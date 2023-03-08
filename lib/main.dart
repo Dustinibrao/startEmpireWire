@@ -174,9 +174,7 @@ class _RootPageState extends State<RootPage> {
                           FontAwesomeIcons.twitter,
                         ),
                         color: Colors.white,
-                        onPressed: () => {
-                          
-                        },
+                        onPressed: () => {},
                       ),
                       IconButton(
                         icon: const Icon(
@@ -208,12 +206,12 @@ class _RootPageState extends State<RootPage> {
         ),
       ),
       body: pages[currentPage],
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          debugPrint("floating action button");
-        },
-        child: const Icon(Icons.add),
-      ),
+      // floatingActionButton: FloatingActionButton(
+      //   onPressed: () {
+      //     debugPrint("floating action button");
+      //   },
+      //   child: const Icon(Icons.add),
+      // ),
       bottomNavigationBar: NavigationBar(
         backgroundColor: Colors.black,
         destinations: const [
