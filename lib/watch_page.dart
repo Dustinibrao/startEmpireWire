@@ -65,39 +65,52 @@ class _WatchPageState extends State<WatchPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context);
-          },
+        appBar: AppBar(
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          ),
+          title: const Text("Watch"),
+          centerTitle: true,
         ),
-        title: const Text("Watch"),
-        centerTitle: true,
-      ),
-      body: isLoading
-          ? const Center(
-              child: CircularProgressIndicator(),
-            )
-          : hasError
-              ? const Center(
-                  child: Text("Failed to load podcasts"),
-                )
-              : ListView.separated(
-                  itemCount: podcasts.length,
-                  separatorBuilder: (context, index) => const Divider(),
-                  itemBuilder: (context, index) {
-                    final podcast = podcasts[index];
-                    return ListTile(
-                      title: Text(podcast.title),
-                      // subtitle: Text(podcast.description ?? ""),
-                      onTap: () {
-                        // Navigate to the podcast video player
-                      },
-                    );
-                  },
-                ),
-    );
+        body: isLoading
+            ? const Center(
+                child: CircularProgressIndicator(),
+              )
+            : hasError
+                ? const Center(
+                    child: Text("Failed to load podcasts"),
+                  )
+                : ListView.separated(
+                    itemCount: podcasts.length,
+                    separatorBuilder: (context, index) => const Divider(),
+                    itemBuilder: (context, index) {
+                      final podcast = podcasts[index];
+                      return ListTile(
+                        contentPadding: EdgeInsets.all(8.0),
+                        leading: Container(
+                          width: 100.0,
+                          height: 100.0,
+                          child: podcast.featuredImageUrl != null
+                              ? Image.network(
+                                  podcast.featuredImageUrl,
+                                  fit: BoxFit.cover,
+                                )
+                              : null,
+                        ),
+                        title: Text(
+                          podcast.title,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        onTap: () {
+                          // Navigate to the podcast video player
+                        },
+                      );
+                    },
+                  ));
   }
 }
 
@@ -107,12 +120,14 @@ class Podcast {
   final String title;
   final String link;
   final String imageUrl;
+  final String featuredImageUrl;
 
   Podcast({
     required this.id,
     required this.title,
     required this.link,
     required this.imageUrl,
+    required this.featuredImageUrl,
   });
 
   factory Podcast.fromJson(Map<String, dynamic> json) {
@@ -121,6 +136,7 @@ class Podcast {
       title: json['title']['rendered'] ?? 'No title available',
       link: json['link'] ?? '',
       imageUrl: json['featured_image_url'] ?? '',
+      featuredImageUrl: json['episode_featured_image'] ?? '',
     );
   }
 }
