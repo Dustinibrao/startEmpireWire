@@ -65,52 +65,55 @@ class _WatchPageState extends State<WatchPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () {
-              Navigator.pop(context);
-            },
-          ),
-          title: const Text("Watch"),
-          centerTitle: true,
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context);
+          },
         ),
-        body: isLoading
-            ? const Center(
-                child: CircularProgressIndicator(),
-              )
-            : hasError
-                ? const Center(
-                    child: Text("Failed to load podcasts"),
-                  )
-                : ListView.separated(
-                    itemCount: podcasts.length,
-                    separatorBuilder: (context, index) => const Divider(),
-                    itemBuilder: (context, index) {
-                      final podcast = podcasts[index];
-                      return ListTile(
-                        contentPadding: EdgeInsets.all(8.0),
-                        leading: Container(
-                          width: 100.0,
-                          height: 100.0,
-                          child: podcast.featuredImageUrl != null
-                              ? Image.network(
-                                  podcast.featuredImageUrl,
-                                  fit: BoxFit.cover,
-                                )
-                              : null,
+        title: const Text("Watch"),
+        centerTitle: true,
+      ),
+      body: isLoading
+          ? const Center(
+              child: CircularProgressIndicator(),
+            )
+          : hasError
+              ? const Center(
+                  child: Text("Failed to load podcasts"),
+                )
+              : ListView.separated(
+                  itemCount: podcasts.length,
+                  separatorBuilder: (context, index) => const Divider(),
+                  itemBuilder: (context, index) {
+                    final podcast = podcasts[index];
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        AspectRatio(
+                          aspectRatio: 16 / 9,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(10),
+                            child: podcast.featuredImageUrl != null
+                                ? Image.network(
+                                    podcast.featuredImageUrl,
+                                    fit: BoxFit.contain,
+                                  )
+                                : const SizedBox.shrink(),
+                          ),
                         ),
-                        title: Text(
+                        const SizedBox(height: 8),
+                        Text(
                           podcast.title,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context).textTheme.subtitle1,
+                          textAlign: TextAlign.center,
                         ),
-                        onTap: () {
-                          // Navigate to the podcast video player
-                        },
-                      );
-                    },
-                  ));
+                      ],
+                    );
+                  },
+                ),
+    );
   }
 }
 
@@ -119,14 +122,14 @@ class Podcast {
   final int id;
   final String title;
   final String link;
-  final String imageUrl;
+  // final String imageUrl;
   final String featuredImageUrl;
 
   Podcast({
     required this.id,
     required this.title,
     required this.link,
-    required this.imageUrl,
+    // required this.imageUrl,
     required this.featuredImageUrl,
   });
 
@@ -135,7 +138,7 @@ class Podcast {
       id: int.parse(json['id'].toString()),
       title: json['title']['rendered'] ?? 'No title available',
       link: json['link'] ?? '',
-      imageUrl: json['featured_image_url'] ?? '',
+      // imageUrl: json['featured_image_url'] ?? '',
       featuredImageUrl: json['episode_featured_image'] ?? '',
     );
   }
