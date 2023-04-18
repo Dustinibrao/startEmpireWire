@@ -1,6 +1,10 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_html/flutter_html.dart';
 import 'package:http/http.dart' as http;
+import 'package:video_player/video_player.dart';
+import 'dart:convert';
+import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 class WatchPage extends StatefulWidget {
   const WatchPage({Key? key}) : super(key: key);
@@ -18,6 +22,9 @@ class _WatchPageState extends State<WatchPage> {
 
   // Flag to determine if an error occurred during the API call
   bool hasError = false;
+
+  // Video player controller
+  late VideoPlayerController? _controller;
 
   // Function to fetch the podcasts from the API
   Future<void> fetchPodcasts() async {
@@ -88,28 +95,73 @@ class _WatchPageState extends State<WatchPage> {
                   separatorBuilder: (context, index) => const Divider(),
                   itemBuilder: (context, index) {
                     final podcast = podcasts[index];
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        AspectRatio(
-                          aspectRatio: 16 / 9,
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(10),
-                            child: podcast.featuredImageUrl != null
-                                ? Image.network(
-                                    podcast.featuredImageUrl,
-                                    fit: BoxFit.contain,
-                                  )
-                                : const SizedBox.shrink(),
+                    return GestureDetector(
+                      onTap: () {
+                        _controller = VideoPlayerController.network(
+                            podcast.podcastVideoUrl)
+                          ..initialize().then((_) {
+                            setState(() {});
+                            _controller?.play();
+                          });
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return Dialog(
+                              child: Stack(
+                                children: [
+                                  SizedBox(
+                                    height: 200,
+                                    child: _controller!.value.isInitialized
+                                        ? AspectRatio(
+                                            aspectRatio:
+                                                _controller!.value.aspectRatio,
+                                            child: VideoPlayer(_controller!),
+                                          )
+                                        : Container(),
+                                  ),
+                                  Positioned(
+                                    right: 0,
+                                    child: IconButton(
+                                      icon: const Icon(Icons.close),
+                                      onPressed: () {
+                                        _controller?.pause();
+                                        Navigator.of(context).pop();
+                                      },
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        ).then((_) {
+                          _controller?.pause();
+                          _controller?.dispose();
+                          _controller = null;
+                        });
+                      },
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          AspectRatio(
+                            aspectRatio: 16 / 9,
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(10),
+                              child: podcast.featuredImageUrl != null
+                                  ? Image.network(
+                                      podcast.featuredImageUrl,
+                                      fit: BoxFit.contain,
+                                    )
+                                  : const SizedBox.shrink(),
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          podcast.title,
-                          style: Theme.of(context).textTheme.subtitle1,
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
+                          const SizedBox(height: 8),
+                          Text(
+                            podcast.title,
+                            style: Theme.of(context).textTheme.subtitle1,
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
                     );
                   },
                 ),
@@ -122,24 +174,28 @@ class Podcast {
   final int id;
   final String title;
   final String link;
-  // final String imageUrl;
   final String featuredImageUrl;
+  final String podcastVideoUrl;
+  final VideoPlayerController controller;
 
   Podcast({
     required this.id,
     required this.title,
     required this.link,
-    // required this.imageUrl,
     required this.featuredImageUrl,
+    required this.podcastVideoUrl,
+    required this.controller,
   });
 
   factory Podcast.fromJson(Map<String, dynamic> json) {
+    final controller = VideoPlayerController.network(json['link']);
     return Podcast(
       id: int.parse(json['id'].toString()),
       title: json['title']['rendered'] ?? 'No title available',
       link: json['link'] ?? '',
-      // imageUrl: json['featured_image_url'] ?? '',
       featuredImageUrl: json['episode_featured_image'] ?? '',
+      podcastVideoUrl: json['acf']['podcast_video'] ?? '',
+      controller: controller,
     );
   }
 }
