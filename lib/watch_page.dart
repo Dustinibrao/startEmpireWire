@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:http/http.dart' as http;
 import 'package:video_player/video_player.dart';
-import 'dart:convert';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 class WatchPage extends StatefulWidget {
@@ -23,19 +22,12 @@ class _WatchPageState extends State<WatchPage> {
   // Flag to determine if an error occurred during the API call
   bool hasError = false;
 
-  // Video player controller
-  late VideoPlayerController? _controller;
-
   // Function to fetch the podcasts from the API
   Future<void> fetchPodcasts() async {
     try {
       final response = await http.get(
         Uri.parse("https://startempirewire.com/wp-json/wp/v2/podcast"),
       );
-
-      print('Response status code: ${response.statusCode}');
-      print('Response message: ${response.reasonPhrase}');
-      print('Response body: ${response.body}');
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body) as List<dynamic>;
@@ -48,14 +40,12 @@ class _WatchPageState extends State<WatchPage> {
           isLoading = false;
         });
       } else {
-        print('Error fetching podcasts: ${response.statusCode}');
         setState(() {
           isLoading = false;
           hasError = true;
         });
       }
     } catch (e) {
-      print('Error fetching podcasts: $e');
       setState(() {
         isLoading = false;
         hasError = true;
@@ -76,7 +66,11 @@ class _WatchPageState extends State<WatchPage> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.pop(context);
+            Navigator.pushNamedAndRemoveUntil(
+              context,
+              '/home',
+              (Route<dynamic> route) => false,
+            );
           },
         ),
         title: const Text("Watch"),
@@ -97,34 +91,27 @@ class _WatchPageState extends State<WatchPage> {
                     final podcast = podcasts[index];
                     return GestureDetector(
                       onTap: () {
-                        _controller = VideoPlayerController.network(
-                            podcast.podcastVideoUrl)
-                          ..initialize().then((_) {
-                            setState(() {});
-                            _controller?.play();
-                          });
+                        final controller = YoutubePlayerController(
+                          initialVideoId: YoutubePlayer.convertUrlToId(
+                              podcast.podcastVideoUrl)!,
+                          flags: const YoutubePlayerFlags(
+                            autoPlay: true,
+                            mute: false,
+                          ),
+                        );
                         showDialog(
                           context: context,
                           builder: (BuildContext context) {
                             return Dialog(
                               child: Stack(
                                 children: [
-                                  SizedBox(
-                                    height: 200,
-                                    child: _controller!.value.isInitialized
-                                        ? AspectRatio(
-                                            aspectRatio:
-                                                _controller!.value.aspectRatio,
-                                            child: VideoPlayer(_controller!),
-                                          )
-                                        : Container(),
-                                  ),
+                                  YoutubePlayer(controller: controller),
                                   Positioned(
                                     right: 0,
                                     child: IconButton(
                                       icon: const Icon(Icons.close),
                                       onPressed: () {
-                                        _controller?.pause();
+                                        controller.pause();
                                         Navigator.of(context).pop();
                                       },
                                     ),
@@ -133,11 +120,7 @@ class _WatchPageState extends State<WatchPage> {
                               ),
                             );
                           },
-                        ).then((_) {
-                          _controller?.pause();
-                          _controller?.dispose();
-                          _controller = null;
-                        });
+                        );
                       },
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.center,
@@ -176,7 +159,7 @@ class Podcast {
   final String link;
   final String featuredImageUrl;
   final String podcastVideoUrl;
-  final VideoPlayerController controller;
+  late final VideoPlayerController controller;
 
   Podcast({
     required this.id,
@@ -184,18 +167,23 @@ class Podcast {
     required this.link,
     required this.featuredImageUrl,
     required this.podcastVideoUrl,
-    required this.controller,
-  });
+  }) {
+    // Initialize the video player controller
+    controller = VideoPlayerController.network(podcastVideoUrl)
+      ..initialize().then((_) {
+        // Ensure the first frame is shown after the video is initialized
+        controller.play();
+        controller.setLooping(true);
+      });
+  }
 
   factory Podcast.fromJson(Map<String, dynamic> json) {
-    final controller = VideoPlayerController.network(json['link']);
     return Podcast(
       id: int.parse(json['id'].toString()),
       title: json['title']['rendered'] ?? 'No title available',
       link: json['link'] ?? '',
       featuredImageUrl: json['episode_featured_image'] ?? '',
       podcastVideoUrl: json['acf']['podcast_video'] ?? '',
-      controller: controller,
     );
   }
 }

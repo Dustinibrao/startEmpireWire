@@ -33,7 +33,10 @@ class MyApp extends StatelessWidget {
         800: Colors.black,
         900: Colors.black,
       })),
-      home: const RootPage(),
+      home: RootPage(),
+      routes: {
+        '/home': (context) => RootPage(),
+      },
     );
   }
 }
