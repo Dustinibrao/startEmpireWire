@@ -7,6 +7,7 @@ import 'package:testing/read_page.dart';
 import 'package:testing/watch_page.dart';
 import 'package:testing/discuss_page.dart';
 import 'package:testing/search_page.dart';
+import 'package:testing/login_page.dart';
 // import 'package:testing/menu_page.dart';
 
 void main() {
@@ -57,6 +58,7 @@ class _RootPageState extends State<RootPage> {
     const ReadPage(),
     const ListenPage(),
     const WatchPage(),
+    const DiscussPage(),
     const DiscussPage(),
     CouponTemplate(),
     // MenuPage(),
@@ -134,9 +136,12 @@ class _RootPageState extends State<RootPage> {
                   ListTile(
                     title: const Text('Login'),
                     onTap: () {
-                      // Update the UI based on the item selected
-                      // then close the drawer
-                      Navigator.pop(context);
+                      Navigator.pop(context); // Close the drawer
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const LoginPage()),
+                      );
                     },
                   ),
                   ListTile(
