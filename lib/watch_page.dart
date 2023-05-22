@@ -22,6 +22,9 @@ class _WatchPageState extends State<WatchPage> {
   // Flag to determine if an error occurred during the API call
   bool hasError = false;
 
+  bool isPiPModeEnabled = false;
+  // keep track of the pip mode state
+
   // Function to fetch the podcasts from the API
   Future<void> fetchPodcasts() async {
     try {
