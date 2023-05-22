@@ -45,6 +45,8 @@ dependencies:
     flutter_html: ^2.2.1
     chewie: ^1.4.0
     youtube_player_flutter: ^8.1.2
+    audioplayers: ^4.0.1
+    # flutter_audio_player: ^0.1.2
 
 dev_dependencies:
     flutter_test:

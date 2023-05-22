@@ -54,9 +54,9 @@ class RootPage extends StatefulWidget {
 class _RootPageState extends State<RootPage> {
   int currentPage = 0;
   List<Widget> pages = [
-    const HomePage(),
+    PodcastHomePage(),
     const ReadPage(),
-    const ListenPage(),
+    ListenPage(),
     const WatchPage(),
     const DiscussPage(),
     const DiscussPage(),

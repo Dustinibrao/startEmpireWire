@@ -1,36 +1,68 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:audioplayers/audioplayers.dart';
+
+// void main() {
+//   runApp(PodcastApp());
+// }
+
+// class PodcastApp extends StatelessWidget {
+//   @override
+//   Widget build(BuildContext context) {
+//     return MaterialApp(
+//       title: 'Podcast App',
+//       theme: ThemeData(
+//         primarySwatch: Colors.blue,
+//       ),
+//       home: ListenPage(),
+//     );
+//   }
+// }
 
 class ListenPage extends StatefulWidget {
-  const ListenPage({super.key});
-
   @override
   _ListenPageState createState() => _ListenPageState();
 }
 
 class _ListenPageState extends State<ListenPage> {
-  // A list to store the podcasts
-  List<Podcast> podcasts = [];
-
-  // A function to fetch the podcasts from the API
-  Future<void> fetchPodcasts() async {
-    final response = await http
-        .get(Uri.parse("https://startempirewire.com/wp-json/wp/v2/podcast"));
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body) as List;
-      setState(() {
-        podcasts = data.map((podcast) => Podcast.fromJson(podcast)).toList();
-      });
-    } else {
-      throw Exception("Failed to load podcasts");
-    }
-  }
+  List<Episode> episodes = [];
+  bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    fetchPodcasts();
+    fetchEpisodes();
+  }
+
+  Future<void> fetchEpisodes() async {
+    try {
+      final response = await http.get(
+        Uri.parse('https://startempirewire.com/wp-json/wp/v2/podcast'),
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body) as List<dynamic>;
+
+        setState(() {
+          episodes = data.map((episode) => Episode.fromJson(episode)).toList();
+          isLoading = false;
+        });
+      } else {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  void playAudio(String audioUrl) {
+    AudioPlayer audioPlayer = AudioPlayer();
+    audioPlayer.play(audioUrl as Source);
   }
 
   @override
@@ -38,51 +70,60 @@ class _ListenPageState extends State<ListenPage> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.pop(context);
+            Navigator.pushNamedAndRemoveUntil(
+              context,
+              '/home',
+              (Route<dynamic> route) => false,
+            );
           },
         ),
-        title: Text("Listen"),
+        title: const Text("Listen"),
         centerTitle: true,
       ),
-      body: ListView.builder(
-        itemCount: podcasts.length,
-        itemBuilder: (context, index) {
-          final podcast = podcasts[index];
-          return ListTile(
-            title: Text(podcast.title),
-            subtitle: Text(podcast.description),
-            onTap: () {
-              // Navigate to the podcast player screen
-            },
-          );
-        },
-      ),
+      body: isLoading
+          ? const Center(
+              child: CircularProgressIndicator(),
+            )
+          : ListView.builder(
+              itemCount: episodes.length,
+              itemBuilder: (context, index) {
+                final episode = episodes[index];
+                return ListTile(
+                  leading: Image.network(episode.thumbnailUrl),
+                  title: Text(episode.title),
+                  subtitle: Text(episode.publishedDate),
+                  onTap: () {
+                    // Play the episode audio
+                    playAudio(episode.audioUrl);
+                  },
+                );
+              },
+            ),
     );
   }
 }
 
-// Model class for the podcast
-class Podcast {
-  final int id;
+class Episode {
   final String title;
-  final String description;
+  final String thumbnailUrl;
+  final String publishedDate;
   final String audioUrl;
 
-  Podcast({
-    required this.id,
+  Episode({
     required this.title,
-    required this.description,
+    required this.thumbnailUrl,
+    required this.publishedDate,
     required this.audioUrl,
   });
 
-  factory Podcast.fromJson(Map<String, dynamic> json) {
-    return Podcast(
-      id: json["id"],
-      title: json["title"],
-      description: json["description"],
-      audioUrl: json["audio_url"],
+  factory Episode.fromJson(Map<String, dynamic> json) {
+    return Episode(
+      title: json['title']['rendered'] ?? 'No title available',
+      thumbnailUrl: json['episode_featured_image'] ?? '',
+      publishedDate: json['date'] ?? '',
+      audioUrl: json['audio_file'] ?? '',
     );
   }
 }

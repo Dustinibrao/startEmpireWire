@@ -56,11 +56,23 @@ class _LoginPageState extends State<LoginPage> {
               ElevatedButton(
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
-                    // TODO: Implement login functionality
-                    // add create account and forgot password
+                     // TODO: Implement login functionality 
+                     
                   }
                 },
                 child: const Text('Login'),
+              ),
+              TextButton(
+                onPressed: () {
+                  // TODO: Implement create account functionality
+                },
+                child: const Text('Create Account'),
+              ),
+              TextButton(
+                onPressed: () {
+                  // TODO: Implement forgot password functionality
+                },
+                child: const Text('Forgot Password'),
               ),
             ],
           ),
