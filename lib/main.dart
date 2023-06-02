@@ -34,9 +34,9 @@ class MyApp extends StatelessWidget {
         800: Colors.black,
         900: Colors.black,
       })),
-      home: RootPage(),
+      home: const RootPage(),
       routes: {
-        '/home': (context) => RootPage(),
+        '/home': (context) => const RootPage(),
       },
     );
   }
@@ -99,7 +99,6 @@ class _RootPageState extends State<RootPage> {
           : null,
       drawer: Drawer(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Expanded(
               child: ListView(
@@ -140,7 +139,8 @@ class _RootPageState extends State<RootPage> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => const LoginPage()),
+                          builder: (context) => const LoginPage(),
+                        ),
                       );
                     },
                   ),
@@ -163,6 +163,109 @@ class _RootPageState extends State<RootPage> {
                 ],
               ),
             ),
+            const SizedBox(height: 8),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      // Handle startempirewire.com tap
+                    },
+                    child: const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 11),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'StartempireWire.com',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      // Handle Standards and Policies tap
+                    },
+                    child: const Align(
+                      alignment: Alignment.centerLeft,
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(vertical: 5),
+                        child: Text(
+                          'Standards and Policies',
+                          style: TextStyle(fontSize: 12),
+                        ),
+                      ),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      // Handle Privacy Policies tap
+                    },
+                    child: const Align(
+                      alignment: Alignment.centerLeft,
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(vertical: 5),
+                        child: Text(
+                          'Privacy Policies',
+                          style: TextStyle(fontSize: 12),
+                        ),
+                      ),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      // Handle Terms tap
+                    },
+                    child: const Align(
+                      alignment: Alignment.centerLeft,
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(vertical: 5),
+                        child: Text(
+                          'Terms',
+                          style: TextStyle(fontSize: 12),
+                        ),
+                      ),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      // Handle About tap
+                    },
+                    child: const Align(
+                      alignment: Alignment.centerLeft,
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(vertical: 5),
+                        child: Text(
+                          'About',
+                          style: TextStyle(fontSize: 12),
+                        ),
+                      ),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      // Handle Support tap
+                    },
+                    child: const Align(
+                      alignment: Alignment.centerLeft,
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(vertical: 5),
+                        child: Text(
+                          'Support',
+                          style: TextStyle(fontSize: 12),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 8),
             Container(
               color: Colors.black,
               child: Column(
@@ -213,6 +316,7 @@ class _RootPageState extends State<RootPage> {
           ],
         ),
       ),
+
       body: pages[currentPage],
       // floatingActionButton: FloatingActionButton(
       //   onPressed: () {
