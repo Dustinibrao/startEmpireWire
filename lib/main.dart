@@ -8,7 +8,11 @@ import 'package:testing/watch_page.dart';
 import 'package:testing/discuss_page.dart';
 import 'package:testing/search_page.dart';
 import 'package:testing/login_page.dart';
-// import 'package:testing/menu_page.dart';
+import 'package:testing/about_page.dart';
+import 'package:testing/terms_page.dart';
+import 'package:testing/privacy_policies.dart';
+import 'package:testing/standards_and_policies.dart';
+import 'package:testing/support_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -59,9 +63,11 @@ class _RootPageState extends State<RootPage> {
     ListenPage(),
     const WatchPage(),
     const DiscussPage(),
-    const DiscussPage(),
     CouponTemplate(),
-    // MenuPage(),
+    const AboutPage(),
+    const TermsPage(),
+    const PrivacyPolicyPage(),
+    const StandardsAndPoliciesPage(),
   ];
 
   @override
@@ -189,7 +195,14 @@ class _RootPageState extends State<RootPage> {
                   ),
                   GestureDetector(
                     onTap: () {
-                      // Handle Standards and Policies tap
+                      Navigator.pop(context); // Close the drawer
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              const StandardsAndPoliciesPage(),
+                        ),
+                      );
                     },
                     child: const Align(
                       alignment: Alignment.centerLeft,
@@ -204,7 +217,13 @@ class _RootPageState extends State<RootPage> {
                   ),
                   GestureDetector(
                     onTap: () {
-                      // Handle Privacy Policies tap
+                      Navigator.pop(context); // Close the drawer
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const PrivacyPolicyPage(),
+                        ),
+                      );
                     },
                     child: const Align(
                       alignment: Alignment.centerLeft,
@@ -219,7 +238,13 @@ class _RootPageState extends State<RootPage> {
                   ),
                   GestureDetector(
                     onTap: () {
-                      // Handle Terms tap
+                      Navigator.pop(context); // Close the drawer
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const TermsPage(),
+                        ),
+                      );
                     },
                     child: const Align(
                       alignment: Alignment.centerLeft,
@@ -234,7 +259,13 @@ class _RootPageState extends State<RootPage> {
                   ),
                   GestureDetector(
                     onTap: () {
-                      // Handle About tap
+                      Navigator.pop(context); // Close the drawer
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const AboutPage(),
+                        ),
+                      );
                     },
                     child: const Align(
                       alignment: Alignment.centerLeft,
@@ -248,9 +279,7 @@ class _RootPageState extends State<RootPage> {
                     ),
                   ),
                   GestureDetector(
-                    onTap: () {
-                      // Handle Support tap
-                    },
+                    onTap: () {},
                     child: const Align(
                       alignment: Alignment.centerLeft,
                       child: Padding(
@@ -316,14 +345,7 @@ class _RootPageState extends State<RootPage> {
           ],
         ),
       ),
-
       body: pages[currentPage],
-      // floatingActionButton: FloatingActionButton(
-      //   onPressed: () {
-      //     debugPrint("floating action button");
-      //   },
-      //   child: const Icon(Icons.add),
-      // ),
       bottomNavigationBar: NavigationBar(
         backgroundColor: Colors.black,
         destinations: const [
