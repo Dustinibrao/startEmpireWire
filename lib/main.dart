@@ -68,6 +68,7 @@ class _RootPageState extends State<RootPage> {
     const TermsPage(),
     const PrivacyPolicyPage(),
     const StandardsAndPoliciesPage(),
+    const SupportPage(),
   ];
 
   @override
@@ -279,7 +280,15 @@ class _RootPageState extends State<RootPage> {
                     ),
                   ),
                   GestureDetector(
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.pop(context); // Close the drawer
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const SupportPage(),
+                        ),
+                      );
+                    },
                     child: const Align(
                       alignment: Alignment.centerLeft,
                       child: Padding(
@@ -319,6 +328,13 @@ class _RootPageState extends State<RootPage> {
                       IconButton(
                         icon: const Icon(
                           FontAwesomeIcons.instagram,
+                        ),
+                        color: Colors.white,
+                        onPressed: () => {},
+                      ),
+                      IconButton(
+                        icon: const Icon(
+                          FontAwesomeIcons.youtube,
                         ),
                         color: Colors.white,
                         onPressed: () => {},
