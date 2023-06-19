@@ -108,6 +108,7 @@ class _RootPageState extends State<RootPage> {
         child: Column(
           children: [
             Expanded(
+              // child: SingleChildScrollView(
               child: ListView(
                 padding: EdgeInsets.zero,
                 children: <Widget>[
@@ -140,7 +141,13 @@ class _RootPageState extends State<RootPage> {
                     ),
                   ),
                   ListTile(
-                    title: const Text('Login'),
+                    title: const Text(
+                      'Login',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
                     onTap: () {
                       Navigator.pop(context); // Close the drawer
                       Navigator.push(
@@ -152,7 +159,13 @@ class _RootPageState extends State<RootPage> {
                     },
                   ),
                   ListTile(
-                    title: const Text('News'),
+                    title: const Text(
+                      'News',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
                     onTap: () {
                       // Update the UI based on the item selected
                       // then close the drawer
@@ -160,7 +173,121 @@ class _RootPageState extends State<RootPage> {
                     },
                   ),
                   ListTile(
-                    title: const Text('Shows'),
+                    title: Row(
+                      children: const [
+                        Icon(
+                          Icons.remove,
+                          color: Colors.red,
+                        ),
+                        SizedBox(width: 8),
+                        Text('U.S'),
+                      ],
+                    ),
+                    onTap: () {
+                      // Add the desired action or navigation here
+                      // For example:
+                      // LaunchURL('https://example.com/news/u.s');
+                      Navigator.pop(context);
+                    },
+                  ),
+                  ListTile(
+                    title: Row(
+                      children: const [
+                        Icon(
+                          Icons.remove,
+                          color: Colors.red,
+                        ),
+                        SizedBox(width: 8),
+                        Text('Media'),
+                      ],
+                    ),
+                    onTap: () {
+                      // Add the desired action or navigation here
+                      // For example:
+                      // LaunchURL('https://example.com/news/u.s');
+                      Navigator.pop(context);
+                    },
+                  ),
+                  ListTile(
+                    title: Row(
+                      children: const [
+                        Icon(
+                          Icons.remove,
+                          color: Colors.red,
+                        ),
+                        SizedBox(width: 8),
+                        Text('U.S'),
+                      ],
+                    ),
+                    onTap: () {
+                      // Add the desired action or navigation here
+                      // For example:
+                      // LaunchURL('https://example.com/news/u.s');
+                      Navigator.pop(context);
+                    },
+                  ),
+                  ListTile(
+                    title: Row(
+                      children: const [
+                        Icon(
+                          Icons.remove,
+                          color: Colors.red,
+                        ),
+                        SizedBox(width: 8),
+                        Text('Media'),
+                      ],
+                    ),
+                    onTap: () {
+                      // Add the desired action or navigation here
+                      // For example:
+                      // LaunchURL('https://example.com/news/u.s');
+                      Navigator.pop(context);
+                    },
+                  ),
+                  ListTile(
+                    title: Row(
+                      children: const [
+                        Icon(
+                          Icons.remove,
+                          color: Colors.red,
+                        ),
+                        SizedBox(width: 8),
+                        Text('U.S'),
+                      ],
+                    ),
+                    onTap: () {
+                      // Add the desired action or navigation here
+                      // For example:
+                      // LaunchURL('https://example.com/news/u.s');
+                      Navigator.pop(context);
+                    },
+                  ),
+                  ListTile(
+                    title: Row(
+                      children: const [
+                        Icon(
+                          Icons.remove,
+                          color: Colors.red,
+                        ),
+                        SizedBox(width: 8),
+                        Text('Media'),
+                      ],
+                    ),
+                    onTap: () {
+                      // Add the desired action or navigation here
+                      // For example:
+                      // LaunchURL('https://example.com/news/u.s');
+                      Navigator.pop(context);
+                    },
+                  ),
+                  ListTile(
+                    title: const Text(
+                      'Shows',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
                     onTap: () {
                       // Update the UI based on the item selected
                       // then close the drawer
@@ -169,6 +296,7 @@ class _RootPageState extends State<RootPage> {
                   ),
                 ],
               ),
+              // ),
             ),
             const SizedBox(height: 8),
             Padding(
