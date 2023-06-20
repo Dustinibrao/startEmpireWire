@@ -108,11 +108,10 @@ class _RootPageState extends State<RootPage> {
         child: Column(
           children: [
             Expanded(
-              // child: SingleChildScrollView(
               child: ListView(
                 padding: EdgeInsets.zero,
                 children: <Widget>[
-                  Container(
+                  SizedBox(
                     height: 88,
                     child: DrawerHeader(
                       decoration: const BoxDecoration(
@@ -167,8 +166,6 @@ class _RootPageState extends State<RootPage> {
                       ),
                     ),
                     onTap: () {
-                      // Update the UI based on the item selected
-                      // then close the drawer
                       Navigator.pop(context);
                     },
                   ),
@@ -184,12 +181,10 @@ class _RootPageState extends State<RootPage> {
                       ],
                     ),
                     onTap: () {
-                      // Add the desired action or navigation here
-                      // For example:
-                      // LaunchURL('https://example.com/news/u.s');
                       Navigator.pop(context);
                     },
                   ),
+                  const SizedBox(height: 0),
                   ListTile(
                     title: Row(
                       children: const [
@@ -202,9 +197,6 @@ class _RootPageState extends State<RootPage> {
                       ],
                     ),
                     onTap: () {
-                      // Add the desired action or navigation here
-                      // For example:
-                      // LaunchURL('https://example.com/news/u.s');
                       Navigator.pop(context);
                     },
                   ),
@@ -220,12 +212,10 @@ class _RootPageState extends State<RootPage> {
                       ],
                     ),
                     onTap: () {
-                      // Add the desired action or navigation here
-                      // For example:
-                      // LaunchURL('https://example.com/news/u.s');
                       Navigator.pop(context);
                     },
                   ),
+                  const SizedBox(height: 0),
                   ListTile(
                     title: Row(
                       children: const [
@@ -238,45 +228,6 @@ class _RootPageState extends State<RootPage> {
                       ],
                     ),
                     onTap: () {
-                      // Add the desired action or navigation here
-                      // For example:
-                      // LaunchURL('https://example.com/news/u.s');
-                      Navigator.pop(context);
-                    },
-                  ),
-                  ListTile(
-                    title: Row(
-                      children: const [
-                        Icon(
-                          Icons.remove,
-                          color: Colors.red,
-                        ),
-                        SizedBox(width: 8),
-                        Text('U.S'),
-                      ],
-                    ),
-                    onTap: () {
-                      // Add the desired action or navigation here
-                      // For example:
-                      // LaunchURL('https://example.com/news/u.s');
-                      Navigator.pop(context);
-                    },
-                  ),
-                  ListTile(
-                    title: Row(
-                      children: const [
-                        Icon(
-                          Icons.remove,
-                          color: Colors.red,
-                        ),
-                        SizedBox(width: 8),
-                        Text('Media'),
-                      ],
-                    ),
-                    onTap: () {
-                      // Add the desired action or navigation here
-                      // For example:
-                      // LaunchURL('https://example.com/news/u.s');
                       Navigator.pop(context);
                     },
                   ),
@@ -289,149 +240,208 @@ class _RootPageState extends State<RootPage> {
                       ),
                     ),
                     onTap: () {
-                      // Update the UI based on the item selected
-                      // then close the drawer
                       Navigator.pop(context);
                     },
                   ),
-                ],
-              ),
-              // ),
-            ),
-            const SizedBox(height: 8),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  GestureDetector(
+                  ListTile(
+                    title: Row(
+                      children: const [
+                        Icon(
+                          Icons.remove,
+                          color: Colors.red,
+                        ),
+                        SizedBox(width: 8),
+                        Text('U.S'),
+                      ],
+                    ),
                     onTap: () {
-                      // Handle startempirewire.com tap
+                      Navigator.pop(context);
                     },
-                    child: const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 11),
-                      child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          'StartempireWire.com',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
+                  ),
+                  const SizedBox(height: 0),
+                  ListTile(
+                    title: Row(
+                      children: const [
+                        Icon(
+                          Icons.remove,
+                          color: Colors.red,
+                        ),
+                        SizedBox(width: 8),
+                        Text('Media'),
+                      ],
+                    ),
+                    onTap: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                  ListTile(
+                    title: Row(
+                      children: const [
+                        Icon(
+                          Icons.remove,
+                          color: Colors.red,
+                        ),
+                        SizedBox(width: 8),
+                        Text('U.S'),
+                      ],
+                    ),
+                    onTap: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                  const SizedBox(height: 0),
+                  ListTile(
+                    title: Row(
+                      children: const [
+                        Icon(
+                          Icons.remove,
+                          color: Colors.red,
+                        ),
+                        SizedBox(width: 8),
+                        Text('Media'),
+                      ],
+                    ),
+                    onTap: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          GestureDetector(
+                            onTap: () {},
+                            child: const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 11),
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  'StartempireWire.com',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.pop(context); // Close the drawer
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              const StandardsAndPoliciesPage(),
-                        ),
-                      );
-                    },
-                    child: const Align(
-                      alignment: Alignment.centerLeft,
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(vertical: 5),
-                        child: Text(
-                          'Standards and Policies',
-                          style: TextStyle(fontSize: 12),
-                        ),
-                      ),
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.pop(context); // Close the drawer
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const PrivacyPolicyPage(),
-                        ),
-                      );
-                    },
-                    child: const Align(
-                      alignment: Alignment.centerLeft,
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(vertical: 5),
-                        child: Text(
-                          'Privacy Policies',
-                          style: TextStyle(fontSize: 12),
-                        ),
-                      ),
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.pop(context); // Close the drawer
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const TermsPage(),
-                        ),
-                      );
-                    },
-                    child: const Align(
-                      alignment: Alignment.centerLeft,
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(vertical: 5),
-                        child: Text(
-                          'Terms',
-                          style: TextStyle(fontSize: 12),
-                        ),
-                      ),
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.pop(context); // Close the drawer
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const AboutPage(),
-                        ),
-                      );
-                    },
-                    child: const Align(
-                      alignment: Alignment.centerLeft,
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(vertical: 5),
-                        child: Text(
-                          'About',
-                          style: TextStyle(fontSize: 12),
-                        ),
-                      ),
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.pop(context); // Close the drawer
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const SupportPage(),
-                        ),
-                      );
-                    },
-                    child: const Align(
-                      alignment: Alignment.centerLeft,
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(vertical: 5),
-                        child: Text(
-                          'Support',
-                          style: TextStyle(fontSize: 12),
-                        ),
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.pop(context); // Close the drawer
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      const StandardsAndPoliciesPage(),
+                                ),
+                              );
+                            },
+                            child: const Align(
+                              alignment: Alignment.centerLeft,
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(vertical: 5),
+                                child: Text(
+                                  'Standards and Policies',
+                                  style: TextStyle(fontSize: 12),
+                                ),
+                              ),
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.pop(context); // Close the drawer
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      const PrivacyPolicyPage(),
+                                ),
+                              );
+                            },
+                            child: const Align(
+                              alignment: Alignment.centerLeft,
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(vertical: 5),
+                                child: Text(
+                                  'Privacy Policies',
+                                  style: TextStyle(fontSize: 12),
+                                ),
+                              ),
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.pop(context); // Close the drawer
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const TermsPage(),
+                                ),
+                              );
+                            },
+                            child: const Align(
+                              alignment: Alignment.centerLeft,
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(vertical: 5),
+                                child: Text(
+                                  'Terms',
+                                  style: TextStyle(fontSize: 12),
+                                ),
+                              ),
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.pop(context); // Close the drawer
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const AboutPage(),
+                                ),
+                              );
+                            },
+                            child: const Align(
+                              alignment: Alignment.centerLeft,
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(vertical: 5),
+                                child: Text(
+                                  'About',
+                                  style: TextStyle(fontSize: 12),
+                                ),
+                              ),
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.pop(context); // Close the drawer
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const SupportPage(),
+                                ),
+                              );
+                            },
+                            child: const Align(
+                              alignment: Alignment.centerLeft,
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(vertical: 5),
+                                child: Text(
+                                  'Support',
+                                  style: TextStyle(fontSize: 12),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 8),
             Container(
               color: Colors.black,
               child: Column(
