@@ -177,7 +177,7 @@ class _RootPageState extends State<RootPage> {
                           color: Colors.red,
                         ),
                         SizedBox(width: 8),
-                        Text('U.S'),
+                        Text('World'),
                       ],
                     ),
                     onTap: () {
@@ -193,7 +193,7 @@ class _RootPageState extends State<RootPage> {
                           color: Colors.red,
                         ),
                         SizedBox(width: 8),
-                        Text('Media'),
+                        Text('U.S.'),
                       ],
                     ),
                     onTap: () {
@@ -208,7 +208,7 @@ class _RootPageState extends State<RootPage> {
                           color: Colors.red,
                         ),
                         SizedBox(width: 8),
-                        Text('U.S'),
+                        Text('San Bernardino County'),
                       ],
                     ),
                     onTap: () {
@@ -224,7 +224,7 @@ class _RootPageState extends State<RootPage> {
                           color: Colors.red,
                         ),
                         SizedBox(width: 8),
-                        Text('Media'),
+                        Text('Riverside County'),
                       ],
                     ),
                     onTap: () {
@@ -251,7 +251,7 @@ class _RootPageState extends State<RootPage> {
                           color: Colors.red,
                         ),
                         SizedBox(width: 8),
-                        Text('U.S'),
+                        Text('Weekly Wire Roundup'),
                       ],
                     ),
                     onTap: () {
@@ -267,7 +267,7 @@ class _RootPageState extends State<RootPage> {
                           color: Colors.red,
                         ),
                         SizedBox(width: 8),
-                        Text('Media'),
+                        Text('Show 2'),
                       ],
                     ),
                     onTap: () {
@@ -282,7 +282,7 @@ class _RootPageState extends State<RootPage> {
                           color: Colors.red,
                         ),
                         SizedBox(width: 8),
-                        Text('U.S'),
+                        Text('Show 3'),
                       ],
                     ),
                     onTap: () {
@@ -298,7 +298,7 @@ class _RootPageState extends State<RootPage> {
                           color: Colors.red,
                         ),
                         SizedBox(width: 8),
-                        Text('Media'),
+                        Text('Show 4'),
                       ],
                     ),
                     onTap: () {
