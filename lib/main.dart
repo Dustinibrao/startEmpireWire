@@ -516,12 +516,12 @@ class _RootPageState extends State<RootPage> {
           ),
           NavigationDestination(
             icon: Icon(
-              Icons.speaker_notes,
+              Icons.menu_book,
               color: Colors.white,
             ),
             label: "", // Read
             selectedIcon: Icon(
-              Icons.speaker_notes,
+              Icons.menu_book,
               color: Color(0xffff6a6f),
             ),
           ),

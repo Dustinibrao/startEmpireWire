@@ -94,7 +94,7 @@ class _PodcastHomePageState extends State<PodcastHomePage> {
                       const SizedBox(height: 16),
                       ListTile(
                         title: Text(topStoryPodcast.title),
-                        subtitle: Text(topStoryPodcast.host),
+                        // subtitle: Text(topStoryPodcast.host),
                         // trailing: const Icon(Icons.play_circle_filled),
                         onTap: () {
                           // Handle podcast item tap
@@ -136,7 +136,7 @@ class _PodcastHomePageState extends State<PodcastHomePage> {
                           height: 80,
                         ),
                         title: Text(podcast.title),
-                        subtitle: Text(podcast.host),
+                        // subtitle: Text(podcast.host),
                         trailing: const Icon(Icons.play_circle_filled),
                         onTap: () {
                           // Handle podcast item tap
@@ -171,7 +171,7 @@ class _PodcastHomePageState extends State<PodcastHomePage> {
                       height: 80,
                     ),
                     title: Text(newPodcast.title),
-                    subtitle: Text(newPodcast.host),
+                    // subtitle: Text(newPodcast.host),
                     trailing: const Icon(Icons.play_circle_filled),
                     onTap: () {
                       // Handle podcast item tap
