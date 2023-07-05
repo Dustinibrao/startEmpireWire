@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter_html/flutter_html.dart';
 import 'package:http/http.dart' as http;
 import 'package:video_player/video_player.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
@@ -13,19 +12,10 @@ class WatchPage extends StatefulWidget {
 }
 
 class _WatchPageState extends State<WatchPage> {
-  // Variable to store the list of podcasts
   List<Podcast> podcasts = [];
-
-  // Flag to determine if the API call is in progress
   bool isLoading = true;
-
-  // Flag to determine if an error occurred during the API call
   bool hasError = false;
 
-  bool isPiPModeEnabled = false;
-  // keep track of the pip mode state
-
-  // Function to fetch the podcasts from the API
   Future<void> fetchPodcasts() async {
     try {
       final response = await http.get(
@@ -63,6 +53,15 @@ class _WatchPageState extends State<WatchPage> {
   }
 
   @override
+  void dispose() {
+    // Dispose video player controllers
+    for (var podcast in podcasts) {
+      podcast.controller.dispose();
+    }
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -94,27 +93,28 @@ class _WatchPageState extends State<WatchPage> {
                     final podcast = podcasts[index];
                     return GestureDetector(
                       onTap: () {
-                        final controller = YoutubePlayerController(
-                          initialVideoId: YoutubePlayer.convertUrlToId(
-                              podcast.podcastVideoUrl)!,
-                          flags: const YoutubePlayerFlags(
-                            autoPlay: true,
-                            mute: false,
-                          ),
-                        );
                         showDialog(
                           context: context,
                           builder: (BuildContext context) {
                             return Dialog(
                               child: Stack(
                                 children: [
-                                  YoutubePlayer(controller: controller),
+                                  YoutubePlayer(
+                                    controller: YoutubePlayerController(
+                                      initialVideoId:
+                                          YoutubePlayer.convertUrlToId(
+                                              podcast.podcastVideoUrl)!,
+                                      flags: const YoutubePlayerFlags(
+                                        autoPlay: true,
+                                        mute: false,
+                                      ),
+                                    ),
+                                  ),
                                   Positioned(
                                     right: 0,
                                     child: IconButton(
                                       icon: const Icon(Icons.close),
                                       onPressed: () {
-                                        controller.pause();
                                         Navigator.of(context).pop();
                                       },
                                     ),
@@ -155,7 +155,6 @@ class _WatchPageState extends State<WatchPage> {
   }
 }
 
-// Model class for the podcast
 class Podcast {
   final int id;
   final String title;
@@ -171,10 +170,8 @@ class Podcast {
     required this.featuredImageUrl,
     required this.podcastVideoUrl,
   }) {
-    // Initialize the video player controller
     controller = VideoPlayerController.network(podcastVideoUrl)
       ..initialize().then((_) {
-        // Ensure the first frame is shown after the video is initialized
         controller.play();
         controller.setLooping(true);
       });
