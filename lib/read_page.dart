@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_html/flutter_html.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class ReadPage extends StatefulWidget {
   const ReadPage({Key? key}) : super(key: key);
@@ -60,6 +61,16 @@ class _ReadPageState extends State<ReadPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pushNamedAndRemoveUntil(
+              context,
+              '/home',
+              (Route<dynamic> route) => false,
+            );
+          },
+        ),
         title: const Text('Read'),
         centerTitle: true,
       ),
@@ -77,8 +88,20 @@ class _ReadPageState extends State<ReadPage> {
                   itemBuilder: (context, index) {
                     final post = posts[index];
                     return ListTile(
+                      leading: Container(
+                        width: 100,
+                        height: 100,
+                        child: CachedNetworkImage(
+                          imageUrl: post.thumbnailUrl,
+                          placeholder: (context, url) =>
+                              const CircularProgressIndicator(),
+                          errorWidget: (context, url, error) =>
+                              const Icon(Icons.error),
+                          fit: BoxFit.cover,
+                        ),
+                      ),
                       title: Text(post.title),
-                      subtitle: Html(data: post.excerpt),
+                      // subtitle: Html(data: post.excerpt),
                       onTap: () {
                         Navigator.push(
                           context,
@@ -113,7 +136,7 @@ class PostDetailsPage extends StatelessWidget {
             children: [
               Text(
                 post.title,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                 ),
@@ -134,12 +157,14 @@ class Post {
   final String title;
   final String excerpt;
   final String content;
+  final String thumbnailUrl;
 
   Post({
     required this.id,
     required this.title,
     required this.excerpt,
     required this.content,
+    required this.thumbnailUrl,
   });
 
   factory Post.fromJson(Map<String, dynamic> json) {
@@ -148,6 +173,7 @@ class Post {
       title: json['title']['rendered'] ?? 'No title available',
       excerpt: json['excerpt']['rendered'] ?? 'No excerpt available',
       content: json['content']['rendered'] ?? 'No content available',
+      thumbnailUrl: json['jetpack_featured_media_url']?.toString() ?? '',
     );
   }
 }

@@ -93,7 +93,7 @@ class _ListenPageState extends State<ListenPage> {
                 return ListTile(
                   leading: Image.network(episode.thumbnailUrl),
                   title: Text(episode.title),
-                  subtitle: Text(episode.publishedDate),
+                  // subtitle: Text(episode.publishedDate),
                   onTap: () {
                     // Play the episode audio
                     playAudio(episode.audioUrl);

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:video_player/video_player.dart';
+import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 class PodcastHomePage extends StatefulWidget {
   @override
@@ -36,6 +38,38 @@ class _PodcastHomePageState extends State<PodcastHomePage> {
     } catch (e) {
       throw Exception('Failed to fetch podcasts');
     }
+  }
+
+  void showVideoDialog(BuildContext context, String videoUrl) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          child: Stack(
+            children: [
+              YoutubePlayer(
+                controller: YoutubePlayerController(
+                  initialVideoId: YoutubePlayer.convertUrlToId(videoUrl)!,
+                  flags: const YoutubePlayerFlags(
+                    autoPlay: true,
+                    mute: false,
+                  ),
+                ),
+              ),
+              Positioned(
+                right: 0,
+                child: IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -81,26 +115,31 @@ class _PodcastHomePageState extends State<PodcastHomePage> {
                     ),
                   ),
                   const SizedBox(height: 3),
-                  Column(
-                    children: [
-                      Container(
-                        alignment: Alignment.center,
-                        height: 210,
-                        child: Image.network(
-                          topStoryPodcast.imageUrl,
-                          fit: BoxFit.cover,
+                  GestureDetector(
+                    onTap: () {
+                      showVideoDialog(context, topStoryPodcast.videoUrl);
+                    },
+                    child: Column(
+                      children: [
+                        Container(
+                          alignment: Alignment.center,
+                          height: 210,
+                          child: Image.network(
+                            topStoryPodcast.imageUrl,
+                            fit: BoxFit.cover,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 16),
-                      ListTile(
-                        title: Text(topStoryPodcast.title),
-                        subtitle: Text(topStoryPodcast.host),
-                        // trailing: const Icon(Icons.play_circle_filled),
-                        onTap: () {
-                          // Handle podcast item tap
-                        },
-                      ),
-                    ],
+                        const SizedBox(height: 16),
+                        ListTile(
+                          title: Text(topStoryPodcast.title),
+                          // subtitle: Text(topStoryPodcast.host),
+                          // trailing: const Icon(Icons.play_circle_filled),
+                          onTap: () {
+                            showVideoDialog(context, topStoryPodcast.videoUrl);
+                          },
+                        ),
+                      ],
+                    ),
                   ),
                   // const Divider(),
                   Padding(
@@ -136,10 +175,10 @@ class _PodcastHomePageState extends State<PodcastHomePage> {
                           height: 80,
                         ),
                         title: Text(podcast.title),
-                        subtitle: Text(podcast.host),
+                        // subtitle: Text(podcast.host),
                         trailing: const Icon(Icons.play_circle_filled),
                         onTap: () {
-                          // Handle podcast item tap
+                          showVideoDialog(context, podcast.videoUrl);
                         },
                       );
                     },
@@ -171,10 +210,10 @@ class _PodcastHomePageState extends State<PodcastHomePage> {
                       height: 80,
                     ),
                     title: Text(newPodcast.title),
-                    subtitle: Text(newPodcast.host),
+                    // subtitle: Text(newPodcast.host),
                     trailing: const Icon(Icons.play_circle_filled),
                     onTap: () {
-                      // Handle podcast item tap
+                      showVideoDialog(context, newPodcast.videoUrl);
                     },
                   ),
                 ],
@@ -195,11 +234,13 @@ class Podcast {
   final String title;
   final String host;
   final String imageUrl;
+  final String videoUrl;
 
   Podcast({
     required this.title,
     required this.host,
     required this.imageUrl,
+    required this.videoUrl,
   });
 
   factory Podcast.fromJson(Map<String, dynamic> json) {
@@ -207,6 +248,7 @@ class Podcast {
       title: json['title']['rendered'] ?? 'No title available',
       host: json['host'] ?? 'No host available',
       imageUrl: json['episode_featured_image'] ?? 'No image available',
+      videoUrl: json['acf']['podcast_video'] ?? '',
     );
   }
 }
