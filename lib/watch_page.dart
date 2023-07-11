@@ -129,15 +129,21 @@ class _WatchPageState extends State<WatchPage> {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           AspectRatio(
-                            aspectRatio: 16 / 9,
+                            aspectRatio:
+                                16 / 9, // Set the aspect ratio accordingly
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(10),
-                              child: podcast.featuredImageUrl != null
-                                  ? Image.network(
-                                      podcast.featuredImageUrl,
-                                      fit: BoxFit.contain,
-                                    )
-                                  : const SizedBox.shrink(),
+                              child: Container(
+                                margin: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  image: DecorationImage(
+                                    image:
+                                        NetworkImage(podcast.featuredImageUrl),
+                                    fit: BoxFit
+                                        .fitWidth, // Adjust the fit property
+                                  ),
+                                ),
+                              ),
                             ),
                           ),
                           const SizedBox(height: 8),

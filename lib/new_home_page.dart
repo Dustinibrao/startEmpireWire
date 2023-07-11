@@ -176,7 +176,7 @@ class _PodcastHomePageState extends State<PodcastHomePage> {
                         ),
                         title: Text(podcast.title),
                         // subtitle: Text(podcast.host),
-                        trailing: const Icon(Icons.play_circle_filled),
+                        // trailing: const Icon(Icons.play_circle_filled),
                         onTap: () {
                           showVideoDialog(context, podcast.videoUrl);
                         },
@@ -211,7 +211,7 @@ class _PodcastHomePageState extends State<PodcastHomePage> {
                     ),
                     title: Text(newPodcast.title),
                     // subtitle: Text(newPodcast.host),
-                    trailing: const Icon(Icons.play_circle_filled),
+                    // trailing: const Icon(Icons.play_circle_filled),
                     onTap: () {
                       showVideoDialog(context, newPodcast.videoUrl);
                     },
