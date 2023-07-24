@@ -112,13 +112,13 @@ class _ListenPageState extends State<ListenPage> {
                   },
                   trailing: isPlaying
                       ? IconButton(
-                          icon: const Icon(Icons.pause),
+                          icon: Icon(Icons.pause),
                           onPressed: () {
                             pauseAudio(index);
                           },
                         )
                       : IconButton(
-                          icon: const Icon(Icons.play_arrow),
+                          icon: Icon(Icons.play_arrow),
                           onPressed: () {
                             playAudio(episode.audioUrl, index);
                           },
