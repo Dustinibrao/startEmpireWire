@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:video_player/video_player.dart';
+import 'package:flutter_html/flutter_html.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 class PodcastHomePage extends StatefulWidget {
@@ -10,33 +10,73 @@ class PodcastHomePage extends StatefulWidget {
 }
 
 class _PodcastHomePageState extends State<PodcastHomePage> {
-  late Future<List<Podcast>> _podcasts;
+  late Future<Podcast> _topStoryPodcast;
+  late Future<List<Article>> _articles;
+  late Future<Podcast> _newPodcast;
 
   @override
   void initState() {
     super.initState();
-    _podcasts = fetchPodcasts();
+    _topStoryPodcast = fetchTopStoryPodcast();
+    _articles = fetchArticles();
+    _newPodcast = fetchNewPodcast();
   }
 
-  Future<List<Podcast>> fetchPodcasts() async {
+  Future<Podcast> fetchTopStoryPodcast() async {
     try {
       final response = await http.get(
         Uri.parse(
-            'https://startempirewire.com/wp-json/wp/v2/podcast?_limit=2&_sort=id:desc'),
+            'https://startempirewire.com/wp-json/wp/v2/podcast?_limit=1&_sort=id:desc'),
       );
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body) as List<dynamic>;
-        final podcasts = data
-            .map((podcast) => Podcast.fromJson(podcast as Map<String, dynamic>))
-            .toList();
-
-        return podcasts;
+        final podcast = Podcast.fromJson(data[0] as Map<String, dynamic>);
+        return podcast;
       } else {
-        throw Exception('Failed to fetch podcasts');
+        throw Exception('Failed to fetch top story podcast');
       }
     } catch (e) {
-      throw Exception('Failed to fetch podcasts');
+      throw Exception('Failed to fetch top story podcast');
+    }
+  }
+
+  Future<List<Article>> fetchArticles() async {
+    try {
+      final response = await http.get(
+        Uri.parse('https://startempirewire.com/wp-json/wp/v2/posts?_limit=5'),
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body) as List<dynamic>;
+        final articles =
+            data.map((article) => Article.fromJson(article)).toList();
+
+        return articles;
+      } else {
+        throw Exception('Failed to fetch articles');
+      }
+    } catch (e) {
+      throw Exception('Failed to fetch articles');
+    }
+  }
+
+  Future<Podcast> fetchNewPodcast() async {
+    try {
+      final response = await http.get(
+        Uri.parse(
+            'https://startempirewire.com/wp-json/wp/v2/podcast?_limit=1&_sort=id:desc'),
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body) as List<dynamic>;
+        final podcast = Podcast.fromJson(data[0] as Map<String, dynamic>);
+        return podcast;
+      } else {
+        throw Exception('Failed to fetch new podcast');
+      }
+    } catch (e) {
+      throw Exception('Failed to fetch new podcast');
     }
   }
 
@@ -75,153 +115,191 @@ class _PodcastHomePageState extends State<PodcastHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: FutureBuilder<List<Podcast>>(
-        future: fetchPodcasts(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
+      body: FutureBuilder<Podcast>(
+        future: _topStoryPodcast,
+        builder: (context, topStorySnapshot) {
+          if (topStorySnapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
+          } else if (topStorySnapshot.hasError) {
             return const Center(
-              child: Text('Failed to load podcasts'),
+              child: Text('Failed to load top story podcast'),
             );
-          } else if (snapshot.hasData) {
-            final podcasts = snapshot.data!;
-            final topStoryPodcast = podcasts[0];
-            final featuredPodcasts =
-                podcasts.sublist(1, 6); // Display 5 featured podcasts
-            final newPodcast = podcasts[0]; // Display the new podcast
+          } else if (topStorySnapshot.hasData) {
+            final topStoryPodcast = topStorySnapshot.data!;
 
-            return SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: RichText(
-                      text: const TextSpan(
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                        ),
-                        children: [
-                          TextSpan(
-                            text: 'Watch ',
-                            style: TextStyle(color: Color(0xffff6a6f)),
-                          ),
-                          TextSpan(text: 'Top Story'),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 3),
-                  GestureDetector(
-                    onTap: () {
-                      showVideoDialog(context, topStoryPodcast.videoUrl);
-                    },
+            return FutureBuilder<List<Article>>(
+              future: _articles,
+              builder: (context, articleSnapshot) {
+                if (articleSnapshot.connectionState ==
+                    ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (articleSnapshot.hasError) {
+                  return const Center(
+                    child: Text('Failed to load articles'),
+                  );
+                } else if (articleSnapshot.hasData) {
+                  final articles = articleSnapshot.data!;
+
+                  return SingleChildScrollView(
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Container(
-                          alignment: Alignment.center,
-                          height: 210,
-                          child: Image.network(
-                            topStoryPodcast.imageUrl,
-                            fit: BoxFit.cover,
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: RichText(
+                            text: const TextSpan(
+                              style: TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xffff6a6f),
+                              ),
+                              children: [
+                                TextSpan(
+                                  text: 'Watch ',
+                                ),
+                                TextSpan(
+                                  text: 'Top Story',
+                                  style: TextStyle(color: Colors.black),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () {
+                            showVideoDialog(context, topStoryPodcast.videoUrl);
+                          },
+                          child: Column(
+                            children: [
+                              Container(
+                                alignment: Alignment.center,
+                                height: 210,
+                                child: Image.network(
+                                  topStoryPodcast.imageUrl,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              ListTile(
+                                title: Text(topStoryPodcast.title),
+                                onTap: () {
+                                  showVideoDialog(
+                                      context, topStoryPodcast.videoUrl);
+                                },
+                              ),
+                            ],
                           ),
                         ),
                         const SizedBox(height: 16),
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: RichText(
+                            text: const TextSpan(
+                              style: TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xffff6a6f),
+                              ),
+                              children: [
+                                TextSpan(
+                                  text: 'Read ',
+                                ),
+                                TextSpan(
+                                  text: 'Featured Articles',
+                                  style: TextStyle(color: Colors.black),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        ListView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: articles.length > 5 ? 5 : articles.length,
+                          itemBuilder: (context, index) {
+                            final article = articles[index];
+                            return ListTile(
+                              leading: Image.network(
+                                article.thumbnailUrl,
+                                width: 100,
+                                height: 100,
+                              ),
+                              title: Text(article.title),
+                              onTap: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                      content: SingleChildScrollView(
+                                        child: Html(
+                                          data: article.content,
+                                        ),
+                                      ),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.of(context).pop();
+                                          },
+                                          child: const Text('Close'),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                );
+                              },
+                            );
+                          },
+                        ),
+                        const SizedBox(height: 16),
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: RichText(
+                            text: const TextSpan(
+                              style: TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xffff6a6f),
+                              ),
+                              children: [
+                                TextSpan(
+                                  text: 'Watch New ',
+                                ),
+                                TextSpan(
+                                  text: 'Podcast',
+                                  style: TextStyle(color: Colors.black),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
                         ListTile(
+                          leading: Image.network(
+                            topStoryPodcast.imageUrl,
+                            width: 100,
+                            height: 100,
+                          ),
                           title: Text(topStoryPodcast.title),
-                          // subtitle: Text(topStoryPodcast.host),
-                          // trailing: const Icon(Icons.play_circle_filled),
+                          // trailing: const Icon(
+                          // // Icons.play_circle_filled,
+                          // color: Colors.red,
+                          // ),
                           onTap: () {
                             showVideoDialog(context, topStoryPodcast.videoUrl);
                           },
                         ),
                       ],
                     ),
-                  ),
-                  // const Divider(),
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: RichText(
-                      text: const TextSpan(
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                        ),
-                        children: [
-                          TextSpan(
-                            text: 'Watch ',
-                            style: TextStyle(color: Color(0xffff6a6f)),
-                          ),
-                          TextSpan(text: 'Featured'),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  ListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: featuredPodcasts.length,
-                    itemBuilder: (context, index) {
-                      final podcast = featuredPodcasts[index];
-                      return ListTile(
-                        leading: Image.network(
-                          podcast.imageUrl,
-                          width: 80,
-                          height: 80,
-                        ),
-                        title: Text(podcast.title),
-                        // subtitle: Text(podcast.host),
-                        trailing: const Icon(Icons.play_circle_filled),
-                        onTap: () {
-                          showVideoDialog(context, podcast.videoUrl);
-                        },
-                      );
-                    },
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: RichText(
-                      text: const TextSpan(
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                        ),
-                        children: [
-                          TextSpan(
-                            text: 'New ',
-                            style: TextStyle(color: Color(0xffff6a6f)),
-                          ),
-                          TextSpan(text: 'Podcast'),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  ListTile(
-                    leading: Image.network(
-                      newPodcast.imageUrl,
-                      width: 80,
-                      height: 80,
-                    ),
-                    title: Text(newPodcast.title),
-                    // subtitle: Text(newPodcast.host),
-                    trailing: const Icon(Icons.play_circle_filled),
-                    onTap: () {
-                      showVideoDialog(context, newPodcast.videoUrl);
-                    },
-                  ),
-                ],
-              ),
+                  );
+                } else {
+                  return const Center(
+                    child: Text('No articles found'),
+                  );
+                }
+              },
             );
           } else {
             return const Center(
-              child: Text('No podcasts found'),
+              child: Text('No top story podcast found'),
             );
           }
         },
@@ -249,6 +327,26 @@ class Podcast {
       host: json['host'] ?? 'No host available',
       imageUrl: json['episode_featured_image'] ?? 'No image available',
       videoUrl: json['acf']['podcast_video'] ?? '',
+    );
+  }
+}
+
+class Article {
+  final String title;
+  final String content;
+  final String thumbnailUrl;
+
+  Article({
+    required this.title,
+    required this.content,
+    required this.thumbnailUrl,
+  });
+
+  factory Article.fromJson(Map<String, dynamic> json) {
+    return Article(
+      title: json['title']['rendered'] ?? 'No title available',
+      content: json['content']['rendered'] ?? '',
+      thumbnailUrl: json['jetpack_featured_media_url'] ?? '',
     );
   }
 }
