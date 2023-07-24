@@ -1,24 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:audioplayers/audioplayers.dart';
-
-// void main() {
-//   runApp(PodcastApp());
-// }
-
-// class PodcastApp extends StatelessWidget {
-//   @override
-//   Widget build(BuildContext context) {
-//     return MaterialApp(
-//       title: 'Podcast App',
-//       theme: ThemeData(
-//         primarySwatch: Colors.blue,
-//       ),
-//       home: ListenPage(),
-//     );
-//   }
-// }
+import 'package:just_audio/just_audio.dart';
 
 class ListenPage extends StatefulWidget {
   @override
@@ -28,11 +11,21 @@ class ListenPage extends StatefulWidget {
 class _ListenPageState extends State<ListenPage> {
   List<Episode> episodes = [];
   bool isLoading = true;
+  late AudioPlayer audioPlayer;
+  late List<bool> isPlayingList;
 
   @override
   void initState() {
     super.initState();
+    audioPlayer = AudioPlayer();
+    audioPlayer.setAsset(''); // Add an empty asset to initialize the player
     fetchEpisodes();
+  }
+
+  @override
+  void dispose() {
+    audioPlayer.dispose();
+    super.dispose();
   }
 
   Future<void> fetchEpisodes() async {
@@ -46,6 +39,7 @@ class _ListenPageState extends State<ListenPage> {
 
         setState(() {
           episodes = data.map((episode) => Episode.fromJson(episode)).toList();
+          isPlayingList = List.generate(episodes.length, (_) => false);
           isLoading = false;
         });
       } else {
@@ -60,9 +54,23 @@ class _ListenPageState extends State<ListenPage> {
     }
   }
 
-  void playAudio(String audioUrl) {
-    AudioPlayer audioPlayer = AudioPlayer();
-    audioPlayer.play(audioUrl as Source);
+  void playAudio(String audioUrl, int index) async {
+    try {
+      await audioPlayer.setUrl(audioUrl);
+      await audioPlayer.play();
+      setState(() {
+        isPlayingList[index] = true;
+      });
+    } catch (e) {
+      // Handle error
+    }
+  }
+
+  void pauseAudio(int index) async {
+    await audioPlayer.pause();
+    setState(() {
+      isPlayingList[index] = false;
+    });
   }
 
   @override
@@ -90,14 +98,31 @@ class _ListenPageState extends State<ListenPage> {
               itemCount: episodes.length,
               itemBuilder: (context, index) {
                 final episode = episodes[index];
+                final isPlaying = isPlayingList[index];
+
                 return ListTile(
                   leading: Image.network(episode.thumbnailUrl),
                   title: Text(episode.title),
-                  // subtitle: Text(episode.publishedDate),
                   onTap: () {
-                    // Play the episode audio
-                    playAudio(episode.audioUrl);
+                    if (isPlaying) {
+                      pauseAudio(index);
+                    } else {
+                      playAudio(episode.audioUrl, index);
+                    }
                   },
+                  trailing: isPlaying
+                      ? IconButton(
+                          icon: Icon(Icons.pause),
+                          onPressed: () {
+                            pauseAudio(index);
+                          },
+                        )
+                      : IconButton(
+                          icon: Icon(Icons.play_arrow),
+                          onPressed: () {
+                            playAudio(episode.audioUrl, index);
+                          },
+                        ),
                 );
               },
             ),
@@ -123,7 +148,7 @@ class Episode {
       title: json['title']['rendered'] ?? 'No title available',
       thumbnailUrl: json['episode_featured_image'] ?? '',
       publishedDate: json['date'] ?? '',
-      audioUrl: json['audio_file'] ?? '',
+      audioUrl: json['player_link'] ?? '',
     );
   }
 }
