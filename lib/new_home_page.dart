@@ -112,197 +112,252 @@ class _PodcastHomePageState extends State<PodcastHomePage> {
     );
   }
 
+  // Function to handle the mailing list form submission
+  void _submitMailingListForm(String email) {
+    // Implement your logic to handle the mailing list form submission
+    // For example, you can use the email to add the user to your mailing list
+    print('Subscribed with email: $email');
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: FutureBuilder<Podcast>(
-        future: _topStoryPodcast,
-        builder: (context, topStorySnapshot) {
-          if (topStorySnapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (topStorySnapshot.hasError) {
-            return const Center(
-              child: Text('Failed to load top story podcast'),
-            );
-          } else if (topStorySnapshot.hasData) {
-            final topStoryPodcast = topStorySnapshot.data!;
+    return GestureDetector(
+      onTap: () {
+        FocusScope.of(context).requestFocus(FocusNode());
+      },
+      child: Scaffold(
+        body: FutureBuilder<Podcast>(
+          future: _topStoryPodcast,
+          builder: (context, topStorySnapshot) {
+            if (topStorySnapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (topStorySnapshot.hasError) {
+              return const Center(
+                child: Text('Failed to load top story podcast'),
+              );
+            } else if (topStorySnapshot.hasData) {
+              final topStoryPodcast = topStorySnapshot.data!;
 
-            return FutureBuilder<List<Article>>(
-              future: _articles,
-              builder: (context, articleSnapshot) {
-                if (articleSnapshot.connectionState ==
-                    ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                } else if (articleSnapshot.hasError) {
-                  return const Center(
-                    child: Text('Failed to load articles'),
-                  );
-                } else if (articleSnapshot.hasData) {
-                  final articles = articleSnapshot.data!;
+              return FutureBuilder<List<Article>>(
+                future: _articles,
+                builder: (context, articleSnapshot) {
+                  if (articleSnapshot.connectionState ==
+                      ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  } else if (articleSnapshot.hasError) {
+                    return const Center(
+                      child: Text('Failed to load articles'),
+                    );
+                  } else if (articleSnapshot.hasData) {
+                    final articles = articleSnapshot.data!;
 
-                  return SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: RichText(
-                            text: const TextSpan(
-                              style: TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xffff6a6f),
+                    return SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: RichText(
+                              text: const TextSpan(
+                                style: TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xffff6a6f),
+                                ),
+                                children: [
+                                  TextSpan(
+                                    text: 'Watch ',
+                                  ),
+                                  TextSpan(
+                                    text: 'Top Story',
+                                    style: TextStyle(color: Colors.black),
+                                  ),
+                                ],
                               ),
-                              children: [
-                                TextSpan(
-                                  text: 'Watch ',
-                                ),
-                                TextSpan(
-                                  text: 'Top Story',
-                                  style: TextStyle(color: Colors.black),
-                                ),
-                              ],
                             ),
                           ),
-                        ),
-                        GestureDetector(
-                          onTap: () {
-                            showVideoDialog(context, topStoryPodcast.videoUrl);
-                          },
-                          child: Column(
-                            children: [
-                              Container(
-                                alignment: Alignment.center,
-                                height: 210,
-                                child: Image.network(
-                                  topStoryPodcast.imageUrl,
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                              const SizedBox(height: 16),
-                              ListTile(
-                                title: Text(topStoryPodcast.title),
-                                onTap: () {
-                                  showVideoDialog(
-                                      context, topStoryPodcast.videoUrl);
-                                },
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: RichText(
-                            text: const TextSpan(
-                              style: TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xffff6a6f),
-                              ),
+                          GestureDetector(
+                            onTap: () {
+                              showVideoDialog(
+                                  context, topStoryPodcast.videoUrl);
+                            },
+                            child: Column(
                               children: [
-                                TextSpan(
-                                  text: 'Read ',
+                                Container(
+                                  alignment: Alignment.center,
+                                  height: 210,
+                                  child: Image.network(
+                                    topStoryPodcast.imageUrl,
+                                    fit: BoxFit.cover,
+                                  ),
                                 ),
-                                TextSpan(
-                                  text: 'Featured Articles',
-                                  style: TextStyle(color: Colors.black),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        ListView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: articles.length > 5 ? 5 : articles.length,
-                          itemBuilder: (context, index) {
-                            final article = articles[index];
-                            return ListTile(
-                              leading: Image.network(
-                                article.thumbnailUrl,
-                                width: 100,
-                                height: 100,
-                              ),
-                              title: Text(article.title),
-                              onTap: () {
-                                showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return AlertDialog(
-                                      content: SingleChildScrollView(
-                                        child: Html(
-                                          data: article.content,
-                                        ),
-                                      ),
-                                      actions: [
-                                        TextButton(
-                                          onPressed: () {
-                                            Navigator.of(context).pop();
-                                          },
-                                          child: const Text('Close'),
-                                        ),
-                                      ],
-                                    );
+                                const SizedBox(height: 16),
+                                ListTile(
+                                  title: Text(topStoryPodcast.title),
+                                  onTap: () {
+                                    showVideoDialog(
+                                        context, topStoryPodcast.videoUrl);
                                   },
-                                );
-                              },
-                            );
-                          },
-                        ),
-                        const SizedBox(height: 16),
-                        Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: RichText(
-                            text: const TextSpan(
-                              style: TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xffff6a6f),
-                              ),
-                              children: [
-                                TextSpan(
-                                  text: 'Watch New ',
-                                ),
-                                TextSpan(
-                                  text: 'Podcast',
-                                  style: TextStyle(color: Colors.black),
                                 ),
                               ],
                             ),
                           ),
-                        ),
-                        ListTile(
-                          leading: Image.network(
-                            topStoryPodcast.imageUrl,
-                            width: 100,
-                            height: 100,
+                          const SizedBox(height: 16),
+                          Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: RichText(
+                              text: const TextSpan(
+                                style: TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xffff6a6f),
+                                ),
+                                children: [
+                                  TextSpan(
+                                    text: 'Read ',
+                                  ),
+                                  TextSpan(
+                                    text: 'Featured Articles',
+                                    style: TextStyle(color: Colors.black),
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
-                          title: Text(topStoryPodcast.title),
-                          // trailing: const Icon(
-                          // // Icons.play_circle_filled,
-                          // color: Colors.red,
-                          // ),
-                          onTap: () {
-                            showVideoDialog(context, topStoryPodcast.videoUrl);
-                          },
-                        ),
-                      ],
-                    ),
-                  );
-                } else {
-                  return const Center(
-                    child: Text('No articles found'),
-                  );
-                }
-              },
-            );
-          } else {
-            return const Center(
-              child: Text('No top story podcast found'),
-            );
-          }
-        },
+                          ListView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount:
+                                articles.length > 5 ? 5 : articles.length,
+                            itemBuilder: (context, index) {
+                              final article = articles[index];
+                              return ListTile(
+                                leading: Image.network(
+                                  article.thumbnailUrl,
+                                  width: 100,
+                                  height: 100,
+                                ),
+                                title: Text(article.title),
+                                onTap: () {
+                                  showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        content: SingleChildScrollView(
+                                          child: Html(
+                                            data: article.content,
+                                          ),
+                                        ),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () {
+                                              Navigator.of(context).pop();
+                                            },
+                                            child: const Text('Close'),
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
+                                },
+                              );
+                            },
+                          ),
+                          const SizedBox(height: 16),
+                          Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: RichText(
+                              text: const TextSpan(
+                                style: TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xffff6a6f),
+                                ),
+                                children: [
+                                  TextSpan(
+                                    text: 'Watch New ',
+                                  ),
+                                  TextSpan(
+                                    text: 'Podcast',
+                                    style: TextStyle(color: Colors.black),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          ListTile(
+                            leading: Image.network(
+                              topStoryPodcast.imageUrl,
+                              width: 100,
+                              height: 100,
+                            ),
+                            title: Text(topStoryPodcast.title),
+                            // trailing: const Icon(
+                            // // Icons.play_circle_filled,
+                            // color: Colors.red,
+                            // ),
+                            onTap: () {
+                              showVideoDialog(
+                                  context, topStoryPodcast.videoUrl);
+                            },
+                          ),
+                          const SizedBox(height: 16),
+                          Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: RichText(
+                              text: const TextSpan(
+                                style: TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xffff6a6f),
+                                ),
+                                children: [
+                                  TextSpan(
+                                    text: 'Subscribe to Our Mailing List',
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Column(
+                              children: [
+                                const TextField(
+                                  decoration: InputDecoration(
+                                    hintText: 'Enter your email',
+                                  ),
+                                  autofocus: false,
+                                ),
+                                const SizedBox(height: 16),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    // Implement your logic to handle the mailing list form submission
+                                    // Call the _submitMailingListForm function with the email entered by the user
+                                    _submitMailingListForm('user@example.com');
+                                  },
+                                  child: const Text('Subscribe'),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  } else {
+                    return const Center(
+                      child: Text('No articles found'),
+                    );
+                  }
+                },
+              );
+            } else {
+              return const Center(
+                child: Text('No top story podcast found'),
+              );
+            }
+          },
+        ),
       ),
     );
   }
