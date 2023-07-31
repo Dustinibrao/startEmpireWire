@@ -25,7 +25,7 @@ class _ReadPageState extends State<ReadPage> {
   Future<void> fetchPosts() async {
     try {
       final response = await http.get(
-        Uri.parse("https://startempirewire.com/wp-json/wp/v2/posts"),
+        Uri.parse("https://startempirewire.com/wp-json/wp/v2/posts?_embed"),
       );
 
       if (response.statusCode == 200) {
@@ -37,6 +37,9 @@ class _ReadPageState extends State<ReadPage> {
               .toList();
           isLoading = false;
         });
+
+        // Fetch the author names using the author IDs from the separate endpoint
+        await fetchAuthors();
       } else {
         setState(() {
           isLoading = false;
@@ -55,6 +58,37 @@ class _ReadPageState extends State<ReadPage> {
   void initState() {
     super.initState();
     fetchPosts();
+  }
+
+  // Function to fetch the author names using the author IDs
+  Future<void> fetchAuthors() async {
+    try {
+      final List<int> authorIds = posts.map((post) => post.authorId).toList();
+      final uniqueAuthorIds = authorIds.toSet().toList();
+
+      for (int authorId in uniqueAuthorIds) {
+        final response = await http.get(
+          Uri.parse(
+              "https://startempirewire.com/wp-json/wp/v2/users/$authorId"),
+        );
+
+        if (response.statusCode == 200) {
+          final data = json.decode(response.body) as Map<String, dynamic>;
+          final String authorName = data['name'] ?? 'No author name available';
+
+          // Update the post with the author name
+          setState(() {
+            posts.where((post) => post.authorId == authorId).forEach((post) {
+              post.authorName = authorName;
+            });
+          });
+        } else {
+          print('Failed to fetch author details for author ID: $authorId');
+        }
+      }
+    } catch (e) {
+      print('Failed to fetch authors: $e');
+    }
   }
 
   @override
@@ -101,7 +135,8 @@ class _ReadPageState extends State<ReadPage> {
                         ),
                       ),
                       title: Text(post.title),
-                      // subtitle: Html(data: post.excerpt),
+                      subtitle:
+                          Text(post.authorName), // Display the author name here
                       onTap: () {
                         Navigator.push(
                           context,
@@ -142,6 +177,11 @@ class PostDetailsPage extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 8),
+              Text(
+                'Author: ${post.authorName}', // Display the author name here
+                style: const TextStyle(),
+              ),
+              const SizedBox(height: 8),
               Html(data: post.content),
             ],
           ),
@@ -158,6 +198,8 @@ class Post {
   final String excerpt;
   final String content;
   final String thumbnailUrl;
+  int authorId; // Updated to include the author ID
+  String authorName; // Updated to include the author name
 
   Post({
     required this.id,
@@ -165,6 +207,8 @@ class Post {
     required this.excerpt,
     required this.content,
     required this.thumbnailUrl,
+    required this.authorId,
+    required this.authorName,
   });
 
   factory Post.fromJson(Map<String, dynamic> json) {
@@ -174,6 +218,8 @@ class Post {
       excerpt: json['excerpt']['rendered'] ?? 'No excerpt available',
       content: json['content']['rendered'] ?? 'No content available',
       thumbnailUrl: json['jetpack_featured_media_url']?.toString() ?? '',
+      authorId: int.parse(json['author'].toString()),
+      authorName: '', // Initialize the author name as an empty string
     );
   }
 }

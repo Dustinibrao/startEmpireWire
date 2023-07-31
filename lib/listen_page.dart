@@ -94,8 +94,9 @@ class _ListenPageState extends State<ListenPage> {
           ? const Center(
               child: CircularProgressIndicator(),
             )
-          : ListView.builder(
+          : ListView.separated(
               itemCount: episodes.length,
+              separatorBuilder: (context, index) => const Divider(),
               itemBuilder: (context, index) {
                 final episode = episodes[index];
                 final isPlaying = isPlayingList[index];
