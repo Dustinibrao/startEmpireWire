@@ -122,13 +122,13 @@ class _ListenPageState extends State<ListenPage> {
                       },
                       trailing: isPlaying
                           ? IconButton(
-                              icon: Icon(Icons.pause),
+                              icon: const Icon(Icons.pause),
                               onPressed: () {
                                 pauseAudio(index);
                               },
                             )
                           : IconButton(
-                              icon: Icon(Icons.play_arrow),
+                              icon: const Icon(Icons.play_arrow),
                               onPressed: () {
                                 playAudio(episode.audioUrl, index);
                               },
@@ -136,7 +136,7 @@ class _ListenPageState extends State<ListenPage> {
                     ),
                     if (currentIndex ==
                         index) // Show the progress indicator only for the currently playing or paused podcast
-                      Container(
+                      SizedBox(
                         height:
                             8, // Set the desired height of the progress indicator
                         child: StreamBuilder<Duration?>(
