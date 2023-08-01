@@ -112,11 +112,49 @@ class _PodcastHomePageState extends State<PodcastHomePage> {
     );
   }
 
-  // Function to handle the mailing list form submission
-  void _submitMailingListForm(String email) {
+  TextEditingController emailController = TextEditingController();
+  bool showMailingListForm = true; // Always show the mailing list form
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    super.dispose();
+  }
+
+  void _submitMailingListForm(String email) async {
     // Implement your logic to handle the mailing list form submission
-    // For example, you can use the email to add the user to your mailing list
-    print('Subscribed with email: $email');
+    // You can use the 'email' parameter to get the entered email value
+    // For example, you can use 'email' to send a request to your backend API
+    print('Submitted email: $email');
+
+    // You can use the Mailchimp API to add the email to your mailing list
+    // For example:
+    // final apiKey = 'YOUR_MAILCHIMP_API_KEY';
+    // final serverPrefix = 'YOUR_MAILCHIMP_SERVER_PREFIX';
+    // final audienceId = 'YOUR_MAILCHIMP_AUDIENCE_ID';
+
+    // final response = await http.post(
+    //   Uri.https(
+    //     '$serverPrefix.api.mailchimp.com',
+    //     '/3.0/lists/$audienceId/members',
+    //     {'email_address': email, 'status': 'subscribed'},
+    //     headers: {
+    //       'Content-Type': 'application/json',
+    //       'Authorization': 'apikey $apiKey',
+    //     },
+    //   ),
+    // );
+
+    // if (response.statusCode == 200) {
+    //   print('Subscribed successfully!');
+    // } else {
+    //   print('Failed to subscribe. Status code: ${response.statusCode}');
+    // }
+
+    // Once the user has successfully subscribed, hide the mailing list form
+    setState(() {
+      showMailingListForm = false;
+    });
   }
 
   @override
@@ -292,10 +330,6 @@ class _PodcastHomePageState extends State<PodcastHomePage> {
                               height: 100,
                             ),
                             title: Text(topStoryPodcast.title),
-                            // trailing: const Icon(
-                            // // Icons.play_circle_filled,
-                            // color: Colors.red,
-                            // ),
                             onTap: () {
                               showVideoDialog(
                                   context, topStoryPodcast.videoUrl);
@@ -323,8 +357,9 @@ class _PodcastHomePageState extends State<PodcastHomePage> {
                             padding: const EdgeInsets.all(16.0),
                             child: Column(
                               children: [
-                                const TextField(
-                                  decoration: InputDecoration(
+                                TextField(
+                                  controller: emailController,
+                                  decoration: const InputDecoration(
                                     hintText: 'Enter your email',
                                   ),
                                   autofocus: false,
@@ -332,9 +367,8 @@ class _PodcastHomePageState extends State<PodcastHomePage> {
                                 const SizedBox(height: 16),
                                 ElevatedButton(
                                   onPressed: () {
-                                    // Implement your logic to handle the mailing list form submission
-                                    // Call the _submitMailingListForm function with the email entered by the user
-                                    _submitMailingListForm('user@example.com');
+                                    _submitMailingListForm(
+                                        emailController.text);
                                   },
                                   child: const Text('Subscribe'),
                                 ),
