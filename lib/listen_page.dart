@@ -13,6 +13,8 @@ class _ListenPageState extends State<ListenPage> {
   bool isLoading = true;
   late AudioPlayer audioPlayer;
   late List<bool> isPlayingList;
+  int?
+      currentIndex; // Track the index of the currently playing or paused podcast
 
   @override
   void initState() {
@@ -59,6 +61,8 @@ class _ListenPageState extends State<ListenPage> {
       await audioPlayer.setUrl(audioUrl);
       await audioPlayer.play();
       setState(() {
+        currentIndex =
+            index; // Set currentIndex to the index of the currently playing podcast.
         isPlayingList[index] = true;
       });
     } catch (e) {
@@ -69,6 +73,8 @@ class _ListenPageState extends State<ListenPage> {
   void pauseAudio(int index) async {
     await audioPlayer.pause();
     setState(() {
+      currentIndex =
+          index; // Set currentIndex to the index of the paused podcast.
       isPlayingList[index] = false;
     });
   }
@@ -101,29 +107,64 @@ class _ListenPageState extends State<ListenPage> {
                 final episode = episodes[index];
                 final isPlaying = isPlayingList[index];
 
-                return ListTile(
-                  leading: Image.network(episode.thumbnailUrl),
-                  title: Text(episode.title),
-                  onTap: () {
-                    if (isPlaying) {
-                      pauseAudio(index);
-                    } else {
-                      playAudio(episode.audioUrl, index);
-                    }
-                  },
-                  trailing: isPlaying
-                      ? IconButton(
-                          icon: Icon(Icons.pause),
-                          onPressed: () {
-                            pauseAudio(index);
-                          },
-                        )
-                      : IconButton(
-                          icon: Icon(Icons.play_arrow),
-                          onPressed: () {
-                            playAudio(episode.audioUrl, index);
+                // Inside the itemBuilder in the ListView.separated
+                return Column(
+                  children: [
+                    ListTile(
+                      leading: Image.network(episode.thumbnailUrl),
+                      title: Text(episode.title),
+                      onTap: () {
+                        if (isPlaying) {
+                          pauseAudio(index);
+                        } else {
+                          playAudio(episode.audioUrl, index);
+                        }
+                      },
+                      trailing: isPlaying
+                          ? IconButton(
+                              icon: Icon(Icons.pause),
+                              onPressed: () {
+                                pauseAudio(index);
+                              },
+                            )
+                          : IconButton(
+                              icon: Icon(Icons.play_arrow),
+                              onPressed: () {
+                                playAudio(episode.audioUrl, index);
+                              },
+                            ),
+                    ),
+                    if (currentIndex ==
+                        index) // Show the progress indicator only for the currently playing or paused podcast
+                      Container(
+                        height:
+                            8, // Set the desired height of the progress indicator
+                        child: StreamBuilder<Duration?>(
+                          stream: audioPlayer.positionStream,
+                          builder: (context, snapshot) {
+                            final position = snapshot.data ?? Duration.zero;
+                            final duration = audioPlayer.duration;
+
+                            double progress = 0.0;
+                            if (duration != null &&
+                                duration.inMilliseconds > 0) {
+                              progress = position.inMilliseconds /
+                                  duration.inMilliseconds;
+                            }
+
+                            return Slider(
+                              value: progress,
+                              onChanged: (value) {
+                                final seekTo = duration! * value;
+                                audioPlayer.seek(seekTo);
+                              },
+                              activeColor: const Color(0xffff6a6f),
+                              inactiveColor: Colors.black,
+                            );
                           },
                         ),
+                      ),
+                  ],
                 );
               },
             ),
