@@ -113,7 +113,7 @@ class _PodcastHomePageState extends State<PodcastHomePage> {
   }
 
   TextEditingController emailController = TextEditingController();
-  bool showMailingListForm = true; // Always show the mailing list form
+  bool showMailingListForm = true;
 
   @override
   void dispose() {
@@ -122,39 +122,16 @@ class _PodcastHomePageState extends State<PodcastHomePage> {
   }
 
   void _submitMailingListForm(String email) async {
-    // Implement your logic to handle the mailing list form submission
-    // You can use the 'email' parameter to get the entered email value
-    // For example, you can use 'email' to send a request to your backend API
     print('Submitted email: $email');
-
-    // You can use the Mailchimp API to add the email to your mailing list
-    // For example:
-    // final apiKey = 'YOUR_MAILCHIMP_API_KEY';
-    // final serverPrefix = 'YOUR_MAILCHIMP_SERVER_PREFIX';
-    // final audienceId = 'YOUR_MAILCHIMP_AUDIENCE_ID';
-
-    // final response = await http.post(
-    //   Uri.https(
-    //     '$serverPrefix.api.mailchimp.com',
-    //     '/3.0/lists/$audienceId/members',
-    //     {'email_address': email, 'status': 'subscribed'},
-    //     headers: {
-    //       'Content-Type': 'application/json',
-    //       'Authorization': 'apikey $apiKey',
-    //     },
-    //   ),
-    // );
-
-    // if (response.statusCode == 200) {
-    //   print('Subscribed successfully!');
-    // } else {
-    //   print('Failed to subscribe. Status code: ${response.statusCode}');
-    // }
-
-    // Once the user has successfully subscribed, hide the mailing list form
     setState(() {
       showMailingListForm = false;
     });
+  }
+
+  String formatDuration(Duration duration) {
+    final minutes = duration.inMinutes.remainder(60).toString().padLeft(2, '0');
+    final seconds = duration.inSeconds.remainder(60).toString().padLeft(2, '0');
+    return '$minutes:$seconds';
   }
 
   @override
@@ -224,9 +201,30 @@ class _PodcastHomePageState extends State<PodcastHomePage> {
                                 Container(
                                   alignment: Alignment.center,
                                   height: 210,
-                                  child: Image.network(
-                                    topStoryPodcast.imageUrl,
-                                    fit: BoxFit.cover,
+                                  child: Stack(
+                                    children: [
+                                      Image.network(
+                                        topStoryPodcast.imageUrl,
+                                        fit: BoxFit.cover,
+                                      ),
+                                      Positioned(
+                                        bottom: 0,
+                                        right: 0,
+                                        child: Container(
+                                          padding: const EdgeInsets.all(8),
+                                          color: Colors.black45,
+                                          child: Text(
+                                            formatDuration(
+                                              topStoryPodcast.duration,
+                                            ),
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                                 const SizedBox(height: 16),
@@ -323,16 +321,83 @@ class _PodcastHomePageState extends State<PodcastHomePage> {
                               ),
                             ),
                           ),
-                          ListTile(
-                            leading: Image.network(
-                              topStoryPodcast.imageUrl,
-                              width: 100,
-                              height: 100,
-                            ),
-                            title: Text(topStoryPodcast.title),
-                            onTap: () {
-                              showVideoDialog(
-                                  context, topStoryPodcast.videoUrl);
+                          FutureBuilder<Podcast>(
+                            future: _newPodcast,
+                            builder: (context, newPodcastSnapshot) {
+                              if (newPodcastSnapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return const Center(
+                                    child: CircularProgressIndicator());
+                              } else if (newPodcastSnapshot.hasError) {
+                                return const Center(
+                                  child: Text('Failed to load new podcast'),
+                                );
+                              } else if (newPodcastSnapshot.hasData) {
+                                final newPodcast = newPodcastSnapshot.data!;
+                                return GestureDetector(
+                                  onTap: () {
+                                    showVideoDialog(
+                                        context, newPodcast.videoUrl);
+                                  },
+                                  child: Column(
+                                    children: [
+                                      ListTile(
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                                horizontal: 16, vertical: 8),
+                                        leading: Container(
+                                          width: 104,
+                                          height: 102,
+                                          child: Stack(
+                                            children: [
+                                              Image.network(
+                                                newPodcast.imageUrl,
+                                                fit: BoxFit.cover,
+                                              ),
+                                              Positioned(
+                                                bottom: 0,
+                                                right: 4,
+                                                child: Container(
+                                                  padding:
+                                                      const EdgeInsets.all(4),
+                                                  color: Colors.black54,
+                                                  child: Text(
+                                                    formatDuration(
+                                                        newPodcast.duration),
+                                                    style: const TextStyle(
+                                                      // fontWeight:
+                                                      //     FontWeight.bold,
+                                                      color: Colors.white,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        title: Padding(
+                                          padding:
+                                              const EdgeInsets.only(bottom: 8),
+                                          child: Text(
+                                            newPodcast.title,
+                                            // style: const TextStyle(
+                                            //     fontWeight: FontWeight.bold),
+                                          ),
+                                        ),
+                                        onTap: () {
+                                          showVideoDialog(
+                                              context, newPodcast.videoUrl);
+                                        },
+                                      ),
+                                      const SizedBox(height: 16),
+                                    ],
+                                  ),
+                                );
+                              } else {
+                                return const Center(
+                                  child: Text('No new podcast found'),
+                                );
+                              }
                             },
                           ),
                           const SizedBox(height: 16),
@@ -402,12 +467,14 @@ class Podcast {
   final String host;
   final String imageUrl;
   final String videoUrl;
+  final Duration duration;
 
   Podcast({
     required this.title,
     required this.host,
     required this.imageUrl,
     required this.videoUrl,
+    required this.duration,
   });
 
   factory Podcast.fromJson(Map<String, dynamic> json) {
@@ -416,7 +483,18 @@ class Podcast {
       host: json['host'] ?? 'No host available',
       imageUrl: json['episode_featured_image'] ?? 'No image available',
       videoUrl: json['acf']['podcast_video'] ?? '',
+      duration: parseDuration(json['meta']['duration'] ?? '0:00'),
     );
+  }
+
+  static Duration parseDuration(String durationString) {
+    final parts = durationString.split(':');
+    if (parts.length == 2) {
+      final minutes = int.tryParse(parts[0]) ?? 0;
+      final seconds = int.tryParse(parts[1]) ?? 0;
+      return Duration(minutes: minutes, seconds: seconds);
+    }
+    return Duration.zero;
   }
 }
 

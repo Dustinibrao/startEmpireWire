@@ -142,7 +142,7 @@ class _ListenPageState extends State<ListenPage> {
                               style: const TextStyle(
                                 backgroundColor: Colors.black45,
                                 color: Colors.white,
-                                fontSize: 12.0,
+                                fontSize: 14.0,
                               ),
                             ),
                           ),

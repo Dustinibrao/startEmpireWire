@@ -4,6 +4,12 @@ import 'package:http/http.dart' as http;
 import 'package:video_player/video_player.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
+void main() {
+  runApp(MaterialApp(
+    home: WatchPage(),
+  ));
+}
+
 class WatchPage extends StatefulWidget {
   const WatchPage({Key? key}) : super(key: key);
 
@@ -65,16 +71,6 @@ class _WatchPageState extends State<WatchPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pushNamedAndRemoveUntil(
-              context,
-              '/home',
-              (Route<dynamic> route) => false,
-            );
-          },
-        ),
         title: const Text("Watch"),
         centerTitle: true,
       ),
@@ -129,8 +125,7 @@ class _WatchPageState extends State<WatchPage> {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           AspectRatio(
-                            aspectRatio:
-                                16 / 9, // Set the aspect ratio accordingly
+                            aspectRatio: 16 / 9,
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(10),
                               child: Container(
@@ -139,9 +134,28 @@ class _WatchPageState extends State<WatchPage> {
                                   image: DecorationImage(
                                     image:
                                         NetworkImage(podcast.featuredImageUrl),
-                                    fit: BoxFit
-                                        .fitWidth, // Adjust the fit property
+                                    fit: BoxFit.cover,
                                   ),
+                                ),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                        vertical: 4,
+                                      ),
+                                      color: Colors.black54,
+                                      child: Text(
+                                        formatDuration(podcast.duration),
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),
@@ -159,6 +173,12 @@ class _WatchPageState extends State<WatchPage> {
                 ),
     );
   }
+
+  String formatDuration(Duration duration) {
+    final minutes = duration.inMinutes.remainder(60).toString().padLeft(2, '0');
+    final seconds = duration.inSeconds.remainder(60).toString().padLeft(2, '0');
+    return '$minutes:$seconds';
+  }
 }
 
 class Podcast {
@@ -167,6 +187,7 @@ class Podcast {
   final String link;
   final String featuredImageUrl;
   final String podcastVideoUrl;
+  final Duration duration;
   late final VideoPlayerController controller;
 
   Podcast({
@@ -175,6 +196,7 @@ class Podcast {
     required this.link,
     required this.featuredImageUrl,
     required this.podcastVideoUrl,
+    required this.duration,
   }) {
     controller = VideoPlayerController.network(podcastVideoUrl)
       ..initialize().then((_) {
@@ -190,6 +212,17 @@ class Podcast {
       link: json['link'] ?? '',
       featuredImageUrl: json['episode_featured_image'] ?? '',
       podcastVideoUrl: json['acf']['podcast_video'] ?? '',
+      duration: parseDuration(json['meta']['duration'] ?? '0:00'),
     );
+  }
+
+  static Duration parseDuration(String durationString) {
+    final parts = durationString.split(':');
+    if (parts.length == 2) {
+      final minutes = int.tryParse(parts[0]) ?? 0;
+      final seconds = int.tryParse(parts[1]) ?? 0;
+      return Duration(minutes: minutes, seconds: seconds);
+    }
+    return Duration.zero;
   }
 }
