@@ -20,6 +20,7 @@ class _ListenPageState extends State<ListenPage> {
   late AudioPlayer audioPlayer;
   late List<bool> isPlayingList;
   int? currentIndex;
+  int? loadingIndex; // Index of the episode currently loading
 
   @override
   void initState() {
@@ -47,38 +48,62 @@ class _ListenPageState extends State<ListenPage> {
         setState(() {
           episodes = data.map((episode) => Episode.fromJson(episode)).toList();
           isPlayingList = List.generate(episodes.length, (_) => false);
-          isLoading = false;
-        });
-      } else {
-        setState(() {
-          isLoading = false;
         });
       }
     } catch (e) {
+      // Handle the error, for example, by displaying an error message
+      print('Error fetching episodes: $e');
+    } finally {
       setState(() {
-        isLoading = false;
+        isLoading =
+            false; // Set isLoading to false regardless of success or error
       });
     }
   }
 
+  Duration? lastPosition;
+
   void playAudio(String audioUrl, int index) async {
     try {
-      await audioPlayer.setUrl(audioUrl);
+      final episode = episodes[index];
+
+      // Set the playback position if available
+      final lastPlaybackPosition = episode.playbackPosition;
+      if (lastPlaybackPosition != null) {
+        await audioPlayer.seek(lastPlaybackPosition);
+      }
+
+      setState(() {
+        loadingIndex = index; // Set loading state for the pressed episode
+      });
+
+      await audioPlayer.setUrl(
+        audioUrl,
+        preload: true,
+      );
+
       await audioPlayer.play();
+
       setState(() {
         currentIndex = index;
         isPlayingList[index] = true;
+        loadingIndex = null; // Clear loading state
       });
     } catch (e) {
+      setState(() {
+        loadingIndex = null; // Clear loading state in case of error
+      });
       // Handle error
     }
   }
 
   void pauseAudio(int index) async {
+    final position = await audioPlayer.position;
     await audioPlayer.pause();
     setState(() {
       currentIndex = index;
       isPlayingList[index] = false;
+      episodes[index].playbackPosition = position;
     });
   }
 
@@ -109,12 +134,12 @@ class _ListenPageState extends State<ListenPage> {
               itemBuilder: (context, index) {
                 final episode = episodes[index];
                 final isPlaying = isPlayingList[index];
+                final isLoadingEpisode = loadingIndex == index;
 
                 return Column(
                   children: [
                     ListTile(
                       title: Text(episode.title),
-                      // subtitle: Text(episode.publishedDate),
                       onTap: () {
                         if (isPlaying) {
                           pauseAudio(index);
@@ -127,12 +152,11 @@ class _ListenPageState extends State<ListenPage> {
                         alignment: Alignment.bottomRight,
                         children: [
                           Container(
-                            width: 100, // Adjust the width as needed
-                            height: 120, // Adjust the height as needed
+                            width: 100,
+                            height: 120,
                             child: Image.network(
                               episode.thumbnailUrl,
-                              fit: BoxFit
-                                  .cover, // Maintain aspect ratio and crop if necessary
+                              fit: BoxFit.cover,
                             ),
                           ),
                           Padding(
@@ -155,12 +179,14 @@ class _ListenPageState extends State<ListenPage> {
                                 pauseAudio(index);
                               },
                             )
-                          : IconButton(
-                              icon: const Icon(Icons.play_arrow),
-                              onPressed: () {
-                                playAudio(episode.audioUrl, index);
-                              },
-                            ),
+                          : isLoadingEpisode
+                              ? const CircularProgressIndicator() // Show loading indicator
+                              : IconButton(
+                                  icon: const Icon(Icons.play_arrow),
+                                  onPressed: () {
+                                    playAudio(episode.audioUrl, index);
+                                  },
+                                ),
                     ),
                     if (currentIndex == index)
                       Column(
@@ -201,13 +227,18 @@ class _ListenPageState extends State<ListenPage> {
                                   duration.inMilliseconds > 0) {
                                 progress = position.inMilliseconds /
                                     duration.inMilliseconds;
+                                progress = progress.clamp(0.0,
+                                    1.0); // Ensure the progress is within the valid range
                               }
 
                               return Slider(
                                 value: progress,
                                 onChanged: (value) {
-                                  final seekTo = duration! * value;
-                                  audioPlayer.seek(seekTo);
+                                  if (duration != null &&
+                                      duration.inMilliseconds > 0) {
+                                    final seekTo = duration * value;
+                                    audioPlayer.seek(seekTo);
+                                  }
                                 },
                                 activeColor: const Color(0xffff6a6f),
                                 inactiveColor: Colors.black,
@@ -247,6 +278,7 @@ class Episode {
   final String publishedDate;
   final String audioUrl;
   final String durationString;
+  Duration playbackPosition;
 
   Episode({
     required this.title,
@@ -254,16 +286,20 @@ class Episode {
     required this.publishedDate,
     required this.audioUrl,
     required this.durationString,
+    this.playbackPosition = Duration.zero,
   });
 
   factory Episode.fromJson(Map<String, dynamic> json) {
+    final playbackPositionInSeconds = json['meta']['playback_position'] ?? 0;
+    final playbackPosition = Duration(seconds: playbackPositionInSeconds);
+
     return Episode(
       title: json['title']['rendered'] ?? 'No title available',
       thumbnailUrl: json['episode_featured_image'] ?? '',
       publishedDate: json['date'] ?? '',
       audioUrl: json['player_link'] ?? '',
-      durationString: json['meta']['duration'] ??
-          '0:00', // Get the duration string from the API response
+      durationString: json['meta']['duration'] ?? '0:00',
+      playbackPosition: playbackPosition,
     );
   }
 }
