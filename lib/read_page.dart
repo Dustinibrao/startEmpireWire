@@ -161,7 +161,7 @@ class PostDetailsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Post Details'),
+        title: const Text('Article Details'),
       ),
       body: SingleChildScrollView(
         child: Padding(

@@ -49,8 +49,12 @@ class _PodcastHomePageState extends State<PodcastHomePage> {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body) as List<dynamic>;
-        final articles =
-            data.map((article) => Article.fromJson(article)).toList();
+        final articles = data
+            .map((article) => Article.fromJson(article as Map<String, dynamic>))
+            .toList();
+
+        // Fetch the author names using the author IDs from the separate endpoint
+        await fetchAuthorsForArticles(articles);
 
         return articles;
       } else {
@@ -58,6 +62,39 @@ class _PodcastHomePageState extends State<PodcastHomePage> {
       }
     } catch (e) {
       throw Exception('Failed to fetch articles');
+    }
+  }
+
+// Function to fetch the author names using the author IDs for articles
+  Future<void> fetchAuthorsForArticles(List<Article> articles) async {
+    // Similar to fetchAuthors() function in your first code snippet
+    try {
+      final List<int> authorIds =
+          articles.map((article) => article.authorId).toList();
+      final uniqueAuthorIds = authorIds.toSet().toList();
+
+      for (int authorId in uniqueAuthorIds) {
+        final response = await http.get(
+          Uri.parse(
+              "https://startempirewire.com/wp-json/wp/v2/users/$authorId"),
+        );
+
+        if (response.statusCode == 200) {
+          final data = json.decode(response.body) as Map<String, dynamic>;
+          final String authorName = data['name'] ?? 'No author name available';
+
+          // Update the article with the author name
+          articles
+              .where((article) => article.authorId == authorId)
+              .forEach((article) {
+            article.authorName = authorName;
+          });
+        } else {
+          print('Failed to fetch author details for author ID: $authorId');
+        }
+      }
+    } catch (e) {
+      print('Failed to fetch authors: $e');
     }
   }
 
@@ -275,25 +312,12 @@ class _PodcastHomePageState extends State<PodcastHomePage> {
                                 ),
                                 title: Text(article.title),
                                 onTap: () {
-                                  showDialog(
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return AlertDialog(
-                                        content: SingleChildScrollView(
-                                          child: Html(
-                                            data: article.content,
-                                          ),
-                                        ),
-                                        actions: [
-                                          TextButton(
-                                            onPressed: () {
-                                              Navigator.of(context).pop();
-                                            },
-                                            child: const Text('Close'),
-                                          ),
-                                        ],
-                                      );
-                                    },
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          ArticleDetailsPage(article: article),
+                                    ),
                                   );
                                 },
                               );
@@ -498,15 +522,58 @@ class Podcast {
   }
 }
 
+class ArticleDetailsPage extends StatelessWidget {
+  final Article article;
+
+  const ArticleDetailsPage({Key? key, required this.article}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Article Details'),
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                article.title,
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Author: ${article.authorName}',
+                style: const TextStyle(), // You can style this as needed
+              ),
+              const SizedBox(height: 8),
+              Html(data: article.content),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class Article {
   final String title;
   final String content;
   final String thumbnailUrl;
+  final int authorId;
+  String authorName; // Make sure this is included
 
   Article({
     required this.title,
     required this.content,
     required this.thumbnailUrl,
+    required this.authorId,
+    required this.authorName,
   });
 
   factory Article.fromJson(Map<String, dynamic> json) {
@@ -514,6 +581,8 @@ class Article {
       title: json['title']['rendered'] ?? 'No title available',
       content: json['content']['rendered'] ?? '',
       thumbnailUrl: json['jetpack_featured_media_url'] ?? '',
+      authorId: int.parse(json['author'].toString()),
+      authorName: '', // Initialize the author name as an empty string
     );
   }
 }
