@@ -13,10 +13,13 @@ import 'package:testing/terms_page.dart';
 import 'package:testing/privacy_policies.dart';
 import 'package:testing/standards_and_policies.dart';
 import 'package:testing/support_page.dart';
+import 'package:miniplayer/miniplayer.dart';
 
 void main() {
   runApp(const MyApp());
 }
+
+final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -42,6 +45,35 @@ class MyApp extends StatelessWidget {
       routes: {
         '/home': (context) => const RootPage(),
       },
+    );
+  }
+}
+
+class PersistentMiniplayer extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MiniplayerWillPopScope(
+      onWillPop: () async {
+        final NavigatorState navigator = _navigatorKey.currentState!;
+        if (!navigator.canPop()) return true;
+        navigator.pop();
+        return false;
+      },
+      child: Miniplayer(
+        minHeight: 70,
+        maxHeight: 500,
+        builder: (height, percentage) {
+          return Container(
+            color: Colors.grey[900],
+            child: const Center(
+              child: Text(
+                'Miniplayer Testing',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 }
@@ -499,7 +531,23 @@ class _RootPageState extends State<RootPage> {
           ],
         ),
       ),
-      body: pages[currentPage],
+      body: Stack(
+        children: <Widget>[
+          Navigator(
+            key: _navigatorKey,
+            onGenerateRoute: (RouteSettings settings) {
+              return MaterialPageRoute(
+                settings: settings,
+                builder: (BuildContext context) => pages[currentPage],
+              );
+            },
+          ),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: PersistentMiniplayer(),
+          ),
+        ],
+      ),
       bottomNavigationBar: NavigationBar(
         backgroundColor: Colors.black,
         destinations: const [
@@ -577,6 +625,9 @@ class _RootPageState extends State<RootPage> {
         },
         selectedIndex: currentPage,
       ),
+      // persistentFooterButtons: const [
+      //   PersistentMiniplayer(), // Add the persistent miniplayer here
+      // ],
     );
   }
 }

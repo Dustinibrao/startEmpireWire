@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_html/flutter_html.dart';
+import 'package:testing/screens/tap_animation.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 class PodcastHomePage extends StatefulWidget {
@@ -304,23 +305,35 @@ class _PodcastHomePageState extends State<PodcastHomePage> {
                                 articles.length > 5 ? 5 : articles.length,
                             itemBuilder: (context, index) {
                               final article = articles[index];
-                              return ListTile(
-                                leading: Image.network(
-                                  article.thumbnailUrl,
-                                  width: 100,
-                                  height: 100,
-                                ),
-                                title: Text(article.title),
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          ArticleDetailsPage(article: article),
+                              return TapAnimationWidget(
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            ArticleDetailsPage(
+                                                article: article),
+                                      ),
+                                    );
+                                  },
+                                  child: ListTile(
+                                    leading: Image.network(
+                                      article.thumbnailUrl,
+                                      width: 100,
+                                      height: 100,
                                     ),
-                                  );
-                                },
-                              );
+                                    title: Text(article.title),
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              ArticleDetailsPage(
+                                                  article: article),
+                                        ),
+                                      );
+                                    },
+                                  ));
                             },
                           ),
                           const SizedBox(height: 16),

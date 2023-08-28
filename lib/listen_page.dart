@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:just_audio/just_audio.dart';
-
+import 'package:miniplayer/miniplayer.dart';
 void main() {
   runApp(MaterialApp(
     home: ListenPage(),
@@ -10,6 +10,7 @@ void main() {
 }
 
 class ListenPage extends StatefulWidget {
+  
   @override
   _ListenPageState createState() => _ListenPageState();
 }
